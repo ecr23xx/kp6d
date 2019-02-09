@@ -1,4 +1,4 @@
-# Keypoints
+# Keypoints Designator
 
 ## How to Generate
 
