@@ -1,12 +1,13 @@
 # kp6d
 
-Gao PENG's undergraduate final year project.
+My undergraduate final year project.
 
 ## Table of Contents
 
-- [Todos](#todo)
+- [Todos](#todos)
 - [Pipeline](#pipeline)
-    - [Keypoints Designation](#keypoints-designation)
+    - [Keypoints designation](#keypoints-designation)
+    - [Object detector training](#object-detector-training)
 
 ## Todos
 
@@ -14,8 +15,6 @@ Gao PENG's undergraduate final year project.
 - [ ] Data synthesis
 - [ ] Labels generation
 - [ ] Object detection
-    - [x] ~~Training~~
-    - [ ] Evaluation
 - [ ] Keypoint localization
 - [ ] Pose estimation
 - [ ] Combine together
@@ -26,7 +25,9 @@ Gao PENG's undergraduate final year project.
 
 Go to folder [gendata](./gendata) and follow its instructions. After this step, you'll get models and keypoints raw data (in .ply format).
 
-### Object Detector Training
+### Object Detector
 
-Go to folder [yolo](./yolo) and follow its instructions. After this step, you'll get pre-trained weights for LINEMOD.
+Go to folder [detect](./detect) and follow its instructions. After this step, you'll get pre-trained weights for LINEMOD.
+
+### Keypoint Localization
 
