@@ -10,10 +10,10 @@ from opt import opt
 class Linemod(data.Dataset):
     def __init__(self, train):
         if train:
-            self.img_folder = '/home/penggao/projects/pose/kppose/linemod/%s/%s/%s/%s/train' % (
+            self.img_folder = '/home/penggao/projects/kp6d/keypoint/data/linemod/%s/%s/%s/%s/train' % (
                 opt.datatype, opt.nClasses, opt.kptype, opt.seq)
         else:
-            self.img_folder = '/home/penggao/projects/pose/kppose/linemod/%s/%s/%s/%s/eval' % (
+            self.img_folder = '/home/penggao/projects/kp6d/keypoint/data/linemod/%s/%s/%s/%s/eval' % (
                 'gt', opt.nClasses, opt.kptype, opt.seq)
         self.is_train = train
         self.inputResH = opt.inputResH
@@ -33,7 +33,7 @@ class Linemod(data.Dataset):
 
         if train:
             filepath = os.path.join(
-                '/home/penggao/projects/pose/kppose/linemod/%s/%s/%s/%s/' % (
+                '/home/penggao/projects/kp6d/keypoint/data/linemod/%s/%s/%s/%s/' % (
                     opt.datatype, opt.nClasses, opt.kptype, opt.seq), "annot_train.h5")
             with h5py.File(filepath, 'r') as annot:
                 # train
@@ -42,7 +42,7 @@ class Linemod(data.Dataset):
                 self.part_coco_train = annot['part'][:]
         else:
             filepath = os.path.join(
-                '/home/penggao/projects/pose/kppose/linemod/%s/%s/%s/%s' % (
+                '/home/penggao/projects/kp6d/keypoint/data/linemod/%s/%s/%s/%s' % (
                     'gt', opt.nClasses, opt.kptype, opt.seq), "annot_eval.h5")
             with h5py.File(filepath, 'r') as annot:
                 # val

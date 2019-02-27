@@ -73,22 +73,19 @@ class Detector:
                                          mode='bilinear', align_corners=True)
         return outputs
 
-    def detect_all(self, dataloader, save=False):
-        """Detect wrapper
+    def detect_all(self, dataloader, savedir=None):
+        """
+        Iterate dataloader and detect every object in it.
 
         Args:
         - dataloader: (Dataloader)
-        - save: (bool) if true, save the detection result to disk
-
-        Returns:
-        - bboxes_all: (Tensor) detected bboxes, each with size [xmin, xmax, ymin, ymax]
+        - savedir: (str, optional)
         """
         bboxes_list = []
         tbar = tqdm(dataloader)
         for batch_idx, (inputs, labels, meta) in enumerate(tbar):
             batch_size = inputs.size(0)
             inputs = inputs.cuda()
-            bboxes = torch.zeros(batch_size, 4)
             detections = self.nms(self.yolo(inputs))
 
             for idx in range(batch_size):
@@ -98,17 +95,9 @@ class Detector:
                 label = labels[idx]
                 detection = detections[detections[:, 0] == idx]
                 bbox = crop_img(img_path, detection.cpu(), self.yolo.reso)
-                if save == True:
+                if savedir is not None:
                     img = Image.open(img_path)
                     draw = ImageDraw.Draw(img)
                     draw.rectangle((bbox[0], bbox[1], bbox[2], bbox[3]))
-                    img.save(
-                        opj('/home/penggao/projects/kp6d/results/', img_name))
-                bboxes[idx, 0] = bbox[0]  # xmin
-                bboxes[idx, 1] = bbox[2]  # xmax
-                bboxes[idx, 2] = bbox[1]  # ymin
-                bboxes[idx, 3] = bbox[3]  # ymax
+                    img.save(opj(savedir, img_name))
 
-            bboxes_list.append(bboxes)
-
-        return bboxes_list

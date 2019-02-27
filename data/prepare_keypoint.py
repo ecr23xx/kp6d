@@ -38,15 +38,20 @@ def split():
 
 def parse_arg():
     parser = argparse.ArgumentParser(description='Synthetic data generator')
-    parser.add_argument('--seq', type=str)
-    parser.add_argument('--kpnum', type=int, help="Number of keypoints")
-    parser.add_argument('--kptype', choices=['sift', 'corner', 'random', 'cluster'],
+    parser.add_argument('--seq', type=str, required=True)
+    parser.add_argument('--kpnum', default=17, choices=[17],
+                        type=int, help="Number of keypoints")
+    parser.add_argument('--kptype', default='sift', choices=['sift'],
                         type=str, help="Type of keypoints")
     parser.add_argument('--sixdroot', type=str, help="LINEMOD data root directory",
-                        default='/media/data_2/SIXDB/hinterstoisser/test')
+                        default='/home/penggao/data/sixd/hinterstoisser/test')
     parser.add_argument('--kpdroot', type=str, help="KPD data root directory",
-                        default='/home/penggao/projects/pose/kppose/linemod/gt')
+                        default='/home/penggao/projects/kp6d/keypoint/data/linemod/gt')
     return parser.parse_args()
+
+
+LINEMODNAMES = ('ape', 'bvise', 'bowl', 'camera', 'can', 'cat', 'cup',
+                'driller', 'duck', 'eggbo', 'glue', 'holepuncher', 'iron', 'lamp', 'phone')
 
 
 if __name__ == '__main__':
@@ -54,7 +59,7 @@ if __name__ == '__main__':
     print("[LOG] Preparing h5 for KPD training")
     print("[LOG] Number of keypoints: %d" % args.kpnum)
     print("[LOG] Type of keypoints: %s" % args.kptype)
-    print("[LOG] Sequence: %s" % args.seq)
+    print("[LOG] Sequence: %s %s" % (args.seq, LINEMODNAMES[int(args.seq)-1]))
 
     bench = SixdToolkit(dataset='hinterstoisser', kpnum=args.kpnum,
                         kptype=args.kptype, is_train=False)

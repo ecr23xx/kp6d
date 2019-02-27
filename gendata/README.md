@@ -27,10 +27,6 @@ Run following command to generate different kinds of keypoints
 $ python kp.py --num=NUM --type=TYPE
 ```
 
-## Example
-
-![kps.png](../assets/kps.png)
-
 ## Parameters
 
 Good SIFT keypoints should be distributed uniformly around the object mesh surface.

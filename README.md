@@ -6,6 +6,7 @@ My undergraduate final year project.
 
 - [Todos](#todos)
 - [Pipeline](#pipeline)
+    - [Prepare Data](#prepare-data)
     - [Keypoints designation](#keypoints-designation)
     - [Object detector](#object-detector)
     - [Keypoint Localization](#keypoint-localization)
@@ -21,6 +22,10 @@ My undergraduate final year project.
 - [ ] Combine together
 
 ## Pipeline
+
+### Prepare Data
+
+Go to folder [data/](./data) and follow its instructions. After this step, data will be prepared for training.
 
 ### Keypoints Designation
 

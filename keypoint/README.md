@@ -1,8 +1,8 @@
 # Keypoint Localizer
 
-## Training
+Keypoint localizer part is based on [MVIG-SJTU/AlphaPose](https://github.com/MVIG-SJTU/AlphaPose).
 
-Training code is based on [MVIG-SJTU/AlphaPose](https://github.com/MVIG-SJTU/AlphaPose).
+## Training
 
 ### Environment
 
@@ -31,8 +31,8 @@ $ python prepare_gt.py --seq=SEQ \
 Explanations for arguments:
 
 * `--seq`: Sequence number for LINEMOD.
-* `--kptype`: Type of keypoints. Now we only support SIFT keypoints
-* `--kpnum`: Number of keypoints.
+* `--kptype`: Type of keypoints. Now we only support SIFT keypoints.
+* `--kpnum`: Number of keypoints. Now we only support 17 keypoints.
 
 ### Train the Model
 
@@ -68,3 +68,22 @@ For every sequence
 
 1. Train without `--addDPG`.
 2. Resume training from best model from last step with `--addDPG`.
+
+## Evaluation Demo
+
+### Demo
+
+Because object detection part will be integerated into the whole pose estimation pipeline finally, we only provide a [demo.py](/demo.py) to test this evaluation part. Run following script, and detection results (images with bounding boxes) will be saved to [eval/results/](eval/results)
+
+```
+cd /home/penggao/projects/kp6d/
+python keypoint.py --bs=BATCH SIZE \
+                   --reso=RESOLUTION \
+                   --gpu=GPU ID \
+                   --name=DATASET NAME \
+                   --seq=SEQUENCE NUMBER \
+                   --ckpt=CHECKPOINTS
+```
+
+## Localization result
+
