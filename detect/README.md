@@ -2,7 +2,7 @@
 
 ## Training
 
-Here I use [AlexeyAB/darknet](https://github.com/AlexeyAB/darknet) to train a YOLO v3 object detector. Correspondence code in this project located in [darknet](darknet)
+Training code is based on [AlexeyAB/darknet](https://github.com/AlexeyAB/darknet), which located in [darknet/](darknet)
 
 ### Preparation
 
@@ -36,15 +36,15 @@ Here I modify [ECer23/yolov3.pytorch](https://github.com/ECer23/yolov3.pytorch) 
 
 ### Demo
 
-Because object detection part will be integerated into the whole pose estimation pipeline finally, we only provide a demo to test this evaluation part. Run following script, and detection results (images with bounding boxes) will be saved to [eval/results](eval/results)
+Because object detection part will be integerated into the whole pose estimation pipeline finally, we only provide a [demo.py](/demo.py) to test this evaluation part. Run following script, and detection results (images with bounding boxes) will be saved to [eval/results/](eval/results)
 
 ```
-$ python eval/src/demo.py --bs=BATCH SIZE \
-                          --reso=RESOLUTION \
-                          --gpu=GPU ID \
-                          --name=DATASET NAME \
-                          --seq=SEQUENCE NUMBER \
-                          --ckpt=CHECKPOINTS
+$ python demo.py --bs=BATCH SIZE \
+                 --reso=RESOLUTION \
+                 --gpu=GPU ID \
+                 --name=DATASET NAME \
+                 --seq=SEQUENCE NUMBER \
+                 --ckpt=CHECKPOINTS
 ```
 
 ## Detection result

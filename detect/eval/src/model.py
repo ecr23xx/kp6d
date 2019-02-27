@@ -2,11 +2,11 @@ import time
 import torch
 import numpy as np
 import torch.nn as nn
-from torch.autograd import Variable
+import torch.nn.functional as F
 from collections import defaultdict
 
-from layers import MaxPool1s, EmptyLayer, DetectionLayer, NMSLayer
-from utils import parse_cfg
+from detect.eval.src.layers import MaxPool1s, EmptyLayer, DetectionLayer, NMSLayer
+from detect.eval.src.utils import parse_cfg
 
 
 class YOLOv3(nn.Module):
@@ -76,8 +76,7 @@ class YOLOv3(nn.Module):
 
             # Up sample layer
             elif block['type'] == 'upsample':
-                stride = int(block["stride"])  # always to be 2 in yolo-v3
-                upsample = nn.Upsample(scale_factor=stride, mode="nearest")
+                upsample = nn.Module()
                 module.add_module("upsample_{}".format(idx), upsample)
 
             # Shortcut layer
@@ -137,9 +136,13 @@ class YOLOv3(nn.Module):
         self.loss = defaultdict(float)
 
         for i, block in enumerate(self.blocks):
-            # Convolutional, upsample, maxpooling layer
-            if block['type'] == 'convolutional' or block['type'] == 'upsample' or block['type'] == 'maxpool':
+            # Convolutional, maxpooling layer
+            if block['type'] == 'convolutional' or block['type'] == 'maxpool':
                 x = self.module_list[i](x)
+                outputs[i] = x
+
+            elif block['type'] == 'upsample':
+                x = F.interpolate(x, scale_factor=int(block['stride']))
                 outputs[i] = x
 
             # Shortcut layer

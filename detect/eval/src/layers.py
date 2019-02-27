@@ -4,8 +4,7 @@ import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
-import config
-from utils import IoU, transform_coord
+from detect.eval.src.utils import IoU, transform_coord
 
 
 class MaxPool1s(nn.Module):

@@ -7,15 +7,16 @@ My undergraduate final year project.
 - [Todos](#todos)
 - [Pipeline](#pipeline)
     - [Keypoints designation](#keypoints-designation)
-    - [Object detector training](#object-detector-training)
+    - [Object detector](#object-detector)
+    - [Keypoint Localization](#keypoint-localization)
 
 ## Todos
 
 - [x] ~~Keypoint designation~~
 - [ ] Data synthesis
-- [ ] Labels generation
-- [ ] Object detection
-- [ ] Keypoint localization
+- [x] ~~Labels generation~~
+- [x] ~~Object detection~~
+- [x] ~~Keypoint localization~~
 - [ ] Pose estimation
 - [ ] Combine together
 
@@ -23,11 +24,13 @@ My undergraduate final year project.
 
 ### Keypoints Designation
 
-Go to folder [gendata](./gendata) and follow its instructions. After this step, you'll get models and keypoints raw data (in .ply format).
+Go to folder [gendata/](./gendata) and follow its instructions. After this step, you'll get models and keypoints raw data (in .ply format).
 
 ### Object Detector
 
-Go to folder [detect](./detect) and follow its instructions. After this step, you'll get pre-trained weights for LINEMOD.
+Go to folder [detect/](./detect) and follow its instructions. After this step, you'll get YOLOv3 pre-trained weights for LINEMOD.
 
 ### Keypoint Localization
+
+Go to folder [keypoint/](./keypoint) and follow its instructions. After this step, you'll get SPPE pre-trained weights for LINEMOD.
 

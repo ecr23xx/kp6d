@@ -4,7 +4,7 @@
 
 ### SIFT Keypoints
 
-1. Install PCL libirary. [How to install Point Cloud Library v1.8 (pcl-1.8.0) on Ubuntu 16.04.2 for C++?](https://askubuntu.com/questions/916260/how-to-install-point-cloud-library-v1-8-pcl-1-8-0-on-ubuntu-16-04-2-lts-for)
+1. Install PCL libirary. Tutorial: [How to install Point Cloud Library v1.8 (pcl-1.8.0) on Ubuntu 16.04.2 for C++?](https://askubuntu.com/questions/916260/how-to-install-point-cloud-library-v1-8-pcl-1-8-0-on-ubuntu-16-04-2-lts-for)
 2. Build and run.
     ```bash
     $ cd pcl-sift

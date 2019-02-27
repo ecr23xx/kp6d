@@ -1,4 +1,3 @@
-import config
 import os
 import torch
 import random
@@ -40,6 +39,33 @@ def parse_cfg(cfgfile):
     blocks = blocks[1:]
 
     return blocks
+
+
+def parse_detection(detection, reso):
+    """
+    Parse detection result
+
+    Args
+    - detection: (np.array) Detection result for one image
+        [#bbox, [batch_idx, x1, y1, x2, y2, objectness, conf, class idx]]
+    - reso: (int) Image resolution
+
+    Returns
+    - area: (Tensor) With size [4,]
+    - conf: (float) Confidence score
+    """
+    # FIXME: constants
+    h_ratio = 480 / reso
+    w_ratio = 640 / reso
+
+    best_idx = np.argmax(detection[:, -3])
+    bbox = detection[best_idx, 1:5]
+    conf = float(detection[best_idx, 6])
+    x1, y1, x2, y2 = bbox[0], bbox[1], bbox[2], bbox[3]
+    area = torch.Tensor((x1 * w_ratio, y1 * h_ratio,
+                         x2 * w_ratio, y2 * h_ratio))
+
+    return area, conf
 
 
 def transform_coord(bbox, src='center', dst='corner'):
@@ -113,13 +139,13 @@ def IoU(box1, box2, format='corner'):
 def crop_img(img_path, detection, reso):
     """Crop target object in image
 
-    @Args
+    Args
     - img_path: (str) path to one image
     - detection: (np.array) detection result for one image
         [#bbox, [batch_idx, top-left x, top-left y, bottom-right x, bottom-right y, objectness, conf, class idx]]
     - reso: (int) image resolution
 
-    @Returns
+    Returns
     - area: (tuple) bbox
     """
     img = Image.open(img_path)
@@ -132,8 +158,6 @@ def crop_img(img_path, detection, reso):
     x1, y1, x2, y2 = bbox[0], bbox[1], bbox[2], bbox[3]
     area = torch.Tensor((x1 * w_ratio, y1 * h_ratio,
                          x2 * w_ratio, y2 * h_ratio))
-
-    save_path = img_path.replace('rgb', 'occ')
 
     return area
 

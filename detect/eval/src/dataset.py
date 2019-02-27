@@ -1,4 +1,3 @@
-import config
 import os
 import glob
 import torch
@@ -33,9 +32,15 @@ class LinemodSingleDataset(torch.utils.data.dataset.Dataset):
         img_path = self.imgs_path[index]
         label_path = img_path.replace(
             'rgb', 'annots/bbox').replace('.png', '.npy')
-        img_tensor = self.transform(Image.open(img_path))
+        img = Image.open(img_path)
+        width, height = img.size
+        img_tensor = self.transform(img)
         img_label = torch.Tensor(np.load(label_path))
-        meta = {'path': img_path}
+        meta = {
+            'path': img_path,
+            'width': width,
+            'height': height
+        }
         return img_tensor, img_label, meta
 
     def __len__(self):

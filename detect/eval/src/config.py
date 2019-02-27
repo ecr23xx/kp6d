@@ -3,9 +3,10 @@ import torch
 import json
 from torchvision import transforms
 
-from dataset import LinemodSingleDataset
-ROOT = '/home/penggao/projects/kp6d/detect'
+from detect.eval.src.dataset import LinemodSingleDataset
 opj = os.path.join
+
+ROOT = '/home/penggao/projects/kp6d/detect'
 
 
 def prepare_dataset(name, reso, bs, seq=None):
@@ -58,7 +59,7 @@ def prepare_dataset(name, reso, bs, seq=None):
     val_dataloder = torch.utils.data.DataLoader(
         dataset=val_datasets,
         batch_size=bs,
-        shuffle=False,
+        shuffle=True,
         num_workers=4,
         pin_memory=True
     )
