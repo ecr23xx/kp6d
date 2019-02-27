@@ -1,0 +1,186 @@
+import os
+import torch
+import torch.utils.data
+from tqdm import tqdm
+from tensorboardX import SummaryWriter
+
+from opt import opt
+from models.FastPose import createModel
+from utils.dataset import coco, linemod
+from utils.eval import DataLogger, accuracy
+from utils.img import flip_v, shuffleLR_v
+
+
+def train(train_loader, m, criterion, optimizer, writer):
+    lossLogger = DataLogger()
+    accLogger = DataLogger()
+    m.train()
+
+    train_loader_desc = tqdm(train_loader)
+
+    for i, (inps, labels, setMask, imgset) in enumerate(train_loader_desc):
+        inps = inps.cuda().requires_grad_()
+        labels = labels.cuda()
+        setMask = setMask.cuda()
+        out = m(inps)
+
+        loss = criterion(out.mul(setMask), labels)
+
+        acc = accuracy(out.data.mul(setMask),
+                       labels.data, train_loader.dataset)
+
+        accLogger.update(acc[0], inps.size(0))
+        lossLogger.update(loss.item(), inps.size(0))
+
+        train_loader_desc.set_postfix(
+            loss='%.2e' % lossLogger.avg, acc='%.2f%%' % (accLogger.avg * 100))
+
+        optimizer.zero_grad()
+        loss.backward()
+        optimizer.step()
+
+        opt.trainIters += 1
+        # Tensorboard
+        writer.add_scalar(
+            'Train/Loss', lossLogger.avg, opt.trainIters)
+        writer.add_scalar(
+            'Train/Acc', accLogger.avg, opt.trainIters)
+
+    train_loader_desc.close()
+
+    return lossLogger.avg, accLogger.avg
+
+
+def valid(val_loader, m, criterion, optimizer, writer):
+    lossLogger = DataLogger()
+    accLogger = DataLogger()
+    m.eval()
+
+    val_loader_desc = tqdm(val_loader)
+
+    for i, (inps, labels, setMask, imgset) in enumerate(val_loader_desc):
+        inps = inps.cuda()
+        labels = labels.cuda()
+        setMask = setMask.cuda()
+
+        with torch.no_grad():
+            out = m(inps)
+
+            loss = criterion(out.mul(setMask), labels)
+
+            flip_out = m(flip_v(inps, cuda=True))
+            flip_out = flip_v(shuffleLR_v(
+                flip_out, val_loader.dataset, cuda=True), cuda=True)
+
+            out = (flip_out + out) / 2
+
+        acc = accuracy(out.mul(setMask), labels, val_loader.dataset)
+
+        lossLogger.update(loss.item(), inps.size(0))
+        accLogger.update(acc[0], inps.size(0))
+
+        opt.valIters += 1
+
+        # Tensorboard
+        writer.add_scalar(
+            'Valid/Loss', lossLogger.avg, opt.valIters)
+        writer.add_scalar(
+            'Valid/Acc', accLogger.avg, opt.valIters)
+
+        # val_loader_desc.set_description(
+        #     'loss: {loss:.8f} | acc: {acc:.2f}'.format(
+        #         loss=lossLogger.avg,
+        #         acc=accLogger.avg * 100)
+        # )
+        val_loader_desc.set_postfix(loss='%.2e' % lossLogger.avg, acc='%.2f%%' % (accLogger.avg * 100))
+
+    val_loader_desc.close()
+
+    return lossLogger.avg, accLogger.avg
+
+
+def main():
+    # Model Initialize
+    expID = '%s_%s_%s_%s%s' % (opt.seq, opt.nClasses, opt.kptype, opt.datatype,
+                               '_dpg' if opt.addDPG else '')
+
+    m = createModel().cuda()
+    if opt.loadModel:
+        print('[LOG] Loading model from {}'.format(opt.loadModel))
+        m.load_state_dict(torch.load(opt.loadModel))
+        if not os.path.exists("../exp/{}/{}".format(opt.dataset, expID)):
+            try:
+                os.mkdir("../exp/{}/{}".format(opt.dataset, expID))
+            except FileNotFoundError:
+                os.mkdir("../exp/{}".format(opt.dataset))
+                os.mkdir("../exp/{}/{}".format(opt.dataset, expID))
+    else:
+        print('[LOG] Create new model')
+        if not os.path.exists("../exp/{}/{}".format(opt.dataset, expID)):
+            try:
+                os.mkdir("../exp/{}/{}".format(opt.dataset, expID))
+            except FileNotFoundError:
+                os.mkdir("../exp/{}".format(opt.dataset))
+                os.mkdir("../exp/{}/{}".format(opt.dataset, expID))
+
+    criterion = torch.nn.MSELoss().cuda()
+
+    if opt.optMethod == 'rmsprop':
+        optimizer = torch.optim.RMSprop(m.parameters(),
+                                        lr=opt.LR,
+                                        momentum=opt.momentum,
+                                        weight_decay=opt.weightDecay)
+    elif opt.optMethod == 'adam':
+        optimizer = torch.optim.Adam(
+            m.parameters(),
+            lr=opt.LR
+        )
+    else:
+        raise Exception
+
+    writer = SummaryWriter(
+        'tensorboard/{}/{}'.format(opt.dataset, expID))
+
+    # Prepare Dataset
+    if opt.dataset == 'coco':
+        train_dataset = coco.Mscoco(train=True)
+        val_dataset = coco.Mscoco(train=False)
+    elif opt.dataset == 'linemod':
+        train_dataset = linemod.Linemod(train=True)
+        val_dataset = linemod.Linemod(train=False)
+
+    train_loader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=opt.trainBatch, shuffle=True, num_workers=opt.nThreads, pin_memory=True)
+
+    val_loader = torch.utils.data.DataLoader(
+        val_dataset, batch_size=opt.validBatch, shuffle=False, num_workers=opt.nThreads, pin_memory=True)
+
+    m = torch.nn.DataParallel(m).cuda()
+    best_valid_acc = 0
+    best_epoch = 0
+    for i in range(opt.nEpochs):
+        opt.epoch = i
+
+        print("\n[LOG] Epoch %d" % i)
+        loss, acc = train(train_loader, m, criterion, optimizer, writer)
+
+        opt.acc = acc
+        opt.loss = loss
+        m_dev = m.module
+
+        if i % 10 == 0:
+            loss, acc = valid(val_loader, m, criterion, optimizer, writer)
+            torch.save(m_dev.state_dict(
+            ), '../exp/{}/{}/model_{}.pkl'.format(opt.dataset, expID, opt.epoch))
+
+            if acc > best_valid_acc:
+                best_epoch = i
+                best_valid_acc = acc
+            print('[LOG] Epoch %d is the best with accuracy %.2f%%!' %
+                (best_epoch, best_valid_acc * 100))
+
+    writer.close()
+
+
+if __name__ == '__main__':
+    main()
