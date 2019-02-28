@@ -1,0 +1,71 @@
+import pickle
+import argparse
+from tqdm import tqdm
+
+from metrics import *
+from data.sixd import SixdToolkit
+
+NAMES = ('ape', 'bvise', 'bowl', 'camera', 'can', 'cat', 'cup',
+         'driller', 'duck', 'eggbo', 'glue', 'holepuncher', 'iron', 'lamp', 'phone')
+
+
+def parse_arg():
+    parser = argparse.ArgumentParser(description='YOLO v3 evaluation')
+    parser.add_argument('--name', type=str, choices=['single'])
+    parser.add_argument('--seq', type=str, help="Sequence number")
+    return parser.parse_args()
+
+
+args = parse_arg()
+
+if __name__ == '__main__':
+    print(args)
+    bench = SixdToolkit(dataset='hinterstoisser', kpnum=17,
+                        kptype='sift', is_train=False)
+    kp3d = bench.models[args.seq]
+    diameter = bench.models_info[args.seq]['diameter']
+
+    with open('results/%s.pkl' % args.seq, 'rb') as handle:
+        result = pickle.load(handle)
+
+    add_errs = []
+    adds = []
+    proj_2d_errs = []
+    ious = []
+    for k, v in tqdm(result.items()):
+        f = bench.frames[args.seq][k]
+        annot = f['annots'][f['obj_ids'].index(int(args.seq))]
+        gt_pose = annot['pose']
+        gt_bbox = annot['bbox']
+
+        pred_bbox = v['bbox']
+        pred_pose = v['pose']
+
+        iou = IoU(gt_bbox, pred_bbox)
+        ious.append(iou)
+        if iou > 0.5:
+            # ADD
+            add = ADD_err(gt_pose, pred_pose, kp3d)
+            add_errs.append(add)
+            adds.append(add < diameter)
+
+            # 2D REPROJECTION ERROR
+            err_2d = projection_error_2d(gt_pose, pred_pose, kp3d, bench.cam)
+            proj_2d_errs.append(err_2d)
+
+    PIXEL_THRESH = 5
+    mean_add_err = np.mean(add_errs)
+    mean_add = np.mean(adds)
+    mean_2d_err = np.mean(np.array(proj_2d_errs))
+    mean_2d_acc = np.mean(np.array(proj_2d_errs) < PIXEL_THRESH)
+    mean_iou = np.mean(np.array(ious) > 0.5)
+    print("[LOG] Mean add error for seq %s %s is: %.3f" %
+          (args.seq, NAMES[int(args.seq) - 1], mean_add_err))
+    print("[LOG] Mean add accuracy for seq %s %s is: %.3f" %
+          (args.seq, NAMES[int(args.seq) - 1], mean_add))
+    print("[LOG] 2d reprojection error for seq %s %s is: %.3f" %
+          (args.seq, NAMES[int(args.seq) - 1], mean_2d_err))
+    print("[LOG] 2d reprojection accuracy for seq %s %s is: %.3f" %
+          (args.seq, NAMES[int(args.seq) - 1], mean_2d_acc))
+    print("[LOG] Mean IoU for seq %s %s is: %.3f" %
+          (args.seq, NAMES[int(args.seq) - 1], mean_iou))

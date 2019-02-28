@@ -78,6 +78,96 @@ def draw_keypoints(img_path, gt_kps, pred_kps, bbox, scores, save_path):
     img.close()
 
 
+def draw_6d_pose(img_path, gt_pose, pred_pose, model, cam, save_path):
+    """
+    Draw a 3d bounding box on image to visualize 6d pose
+
+    Args
+    - img_path: (str) path to original image
+    - gt_pose: (np.array) [4 x 4] pose matrix
+    - pred_pose: (np.array) [4 x 4] pose matrix
+    - model: (np.array) [N x 3] model 3d vertices
+    - cam: (np.array) [3 x 3] camera matrix
+    - save_path: (str) Path to save plots
+    """
+    img = Image.open(img_path)
+
+    gt_pose = gt_pose[:3]
+    pred_pose = pred_pose[:3]
+
+    corners_vertices = get_3D_corners(model)
+    gt_corners = project_vertices(corners_vertices, gt_pose, cam)
+    pred_corners = project_vertices(corners_vertices, pred_pose, cam)
+
+    fig, ax = plt.subplots()
+    ax.axis('off')
+    ax.imshow(np.array(img))
+    edges_corners = (
+        [0, 1], [0, 2], [0, 4], [1, 3], [1, 5], [2, 3],
+        [2, 6], [3, 7], [4, 5], [4, 6], [5, 7], [6, 7]
+    )
+    ax.scatter(gt_corners[:, 0], gt_corners[:, 1], s=10, c='aqua')
+    for edge in edges_corners:
+        ax.plot(gt_corners[edge, 0], gt_corners[edge, 1],
+                linewidth=1.0, c='aqua')
+
+    ax.scatter(pred_corners[:, 0], pred_corners[:, 1], s=10, c='yellow')
+    for edge in edges_corners:
+        ax.plot(pred_corners[edge, 0], pred_corners[edge, 1],
+                linewidth=1.0, c='yellow')
+
+    plt.savefig(save_path, bbox_inches='tight', dpi=400)
+    img.close()
+    plt.close()
+
+
+def get_3D_corners(vertices):
+    """Get vertices 3D bounding boxes
+
+    Args
+    - vertices: (np.array) [N x 3] 3d vertices
+
+    Returns
+    - corners: (np.array) [8 x 2] 2d vertices
+    """
+    min_x = np.min(vertices[:, 0])
+    max_x = np.max(vertices[:, 0])
+    min_y = np.min(vertices[:, 1])
+    max_y = np.max(vertices[:, 1])
+    min_z = np.min(vertices[:, 2])
+    max_z = np.max(vertices[:, 2])
+
+    corners = np.array([[min_x, min_y, min_z],
+                        [min_x, min_y, max_z],
+                        [min_x, max_y, min_z],
+                        [min_x, max_y, max_z],
+                        [max_x, min_y, min_z],
+                        [max_x, min_y, max_z],
+                        [max_x, max_y, min_z],
+                        [max_x, max_y, max_z]])
+
+    return corners
+
+
+def project_vertices(vertices, pose, cam, offset=0):
+    """Project 3d vertices to 2d
+
+    Args
+    - vertices: (np.array) [N x 3] 3d vertices
+    - pose: (np.array) [4 x 4] pose matrix
+    - cam: (np.array) [3 x 3] camera matrix
+
+    Returns
+    - projected: (np.array) [N x 2] projected 2d points
+    """
+    vertices = np.concatenate(
+        (vertices, np.ones((vertices.shape[0], 1))), axis=1)
+    projected = np.matmul(np.matmul(cam, pose), vertices.T)
+    projected /= projected[2, :]
+    projected = projected[:2, :].T
+    return projected
+
+
 def crop_from_dets(img, box, inputResH, inputResW):
     """
     Crop human from origin image according to Dectecion Results
