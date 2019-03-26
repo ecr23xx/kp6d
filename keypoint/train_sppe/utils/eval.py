@@ -1,8 +1,3 @@
-# -----------------------------------------------------
-# Copyright (c) Shanghai Jiao Tong University. All rights reserved.
-# Written by Jiefeng Li (jeff.lee.sjtu@gmail.com)
-# -----------------------------------------------------
-
 from opt import opt
 import sys
 import numpy as np

@@ -1,8 +1,3 @@
-# -----------------------------------------------------
-# Copyright (c) Shanghai Jiao Tong University. All rights reserved.
-# Written by Jiefeng Li (jeff.lee.sjtu@gmail.com)
-# -----------------------------------------------------
-
 import os
 import h5py
 from functools import reduce

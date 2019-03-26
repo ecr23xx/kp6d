@@ -1,8 +1,3 @@
-# -----------------------------------------------------
-# Copyright (c) Shanghai Jiao Tong University. All rights reserved.
-# Written by Jiefeng Li (jeff.lee.sjtu@gmail.com)
-# -----------------------------------------------------
-
 import torch.nn as nn
 
 

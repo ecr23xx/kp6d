@@ -1,13 +1,14 @@
-from sixd import SixdToolkit
 import os
 import sys
 import argparse
 import numpy as np
 from tqdm import tqdm
+from sixd import SixdToolkit
+
 opj = os.path.join
 
 LINEMOD = '/home/penggao/data/sixd/hinterstoisser/test'  # LINEMOD data root
-DARKNET = '/home/penggao/projects/kp6d/detect/darknet/data'  # Darknet data root
+DARKNET = '/home/penggao/projects/pose/kp6d/detect/darknet/data'  # Darknet data root
 NAMES = ('ape', 'bvise', 'bowl', 'camera', 'can', 'cat', 'cup',
          'driller', 'duck', 'eggbo', 'glue', 'holepuncher', 'iron', 'lamp', 'phone')
 

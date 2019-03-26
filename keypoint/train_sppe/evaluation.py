@@ -1,9 +1,5 @@
-# -----------------------------------------------------
-# Copyright (c) Shanghai Jiao Tong University. All rights reserved.
-# Written by Jiefeng Li (jeff.lee.sjtu@gmail.com)
-# -----------------------------------------------------
 
-import torch
+mport torch
 import torch.nn as nn
 import torch.utils.data
 from predict.annot.coco_minival import Mscoco_minival

@@ -7,9 +7,10 @@ from PIL import Image, ImageDraw
 from torchvision import transforms
 
 from utils import *
-from data.sixd import SixdToolkit
-from detect.eval.src.config import *
+from data.linemod.sixd import SixdToolkit
 from detect.eval.src.detector import Detector
+from detect.eval.src.dataset import prepare_dataset
+from detect.eval.src.config import prepare_cfg, prepare_weight
 from keypoint.sppe.src.main_fast_inference import InferenNet_fast
 from keypoint.sppe.src.utils.eval import getPrediction
 from keypoint.sppe.src.utils.img import im_to_torch
@@ -20,7 +21,7 @@ def parse_arg():
     # parser.add_argument('--bs', type=int, help="Batch size")
     parser.add_argument('--reso', type=int, help="Image resolution")
     parser.add_argument('--gpu', default='0,1,2,3', help="GPU ids")
-    parser.add_argument('--name', type=str, choices=['single'])
+    parser.add_argument('--name', type=str, choices=['linemod-single'])
     parser.add_argument('--seq', type=str, help="Sequence number")
     parser.add_argument('--ckpt', type=str, help="Checkpoint path")
     parser.add_argument('-save', action='store_true', help="Save pose figure")
@@ -48,6 +49,8 @@ if __name__ == '__main__':
     tbar = tqdm(val_dataloder)
     result = dict()
     for batch_idx, (inputs, labels, meta) in enumerate(tbar):
+        img_path = meta['path'][0]
+        idx = img_path.split('/')[-1].split('.')[0]
         inputs = inputs.cuda()
         with torch.no_grad():
             # object detection
@@ -59,15 +62,17 @@ if __name__ == '__main__':
             cropped_inputs, pt1, pt2 = crop_from_dets(
                 orig_inp, bboxes[0], 320, 256)
             hms = pose_model(cropped_inputs.unsqueeze(0).cuda()).cpu()
-            _, pred_kps, pred_kps_score = getPrediction(
-                hms, pt1.unsqueeze(0), pt2.unsqueeze(0), 320, 256, 80, 64)
+            try:
+                _, pred_kps, pred_kps_score = getPrediction(
+                    hms, pt1.unsqueeze(0), pt2.unsqueeze(0), 320, 256, 80, 64)
+            except Exception:
+                print("Jump Error frame", idx)
+                continue
 
             # pose estimation
             pred_pose = bench.solve_pnp(
                 bench.kps[args.seq], pred_kps[0].numpy())
 
-            img_path = meta['path'][0]
-            idx = img_path.split('/')[-1].split('.')[0]
             result[int(idx)] = {
                 'bbox': bboxes[0].numpy(),
                 'kps': pred_kps[0].numpy(),
@@ -79,7 +84,7 @@ if __name__ == '__main__':
                 annot = f['annots'][f['obj_ids'].index(int(args.seq))]
                 gt_pose = annot['pose']
 
-                save_path = opj('./results/pose/%s.png' % idx)
+                save_path = os.path.join('./results/pose/%s.png' % idx)
                 draw_6d_pose(img_path, gt_pose, pred_pose,
                              kp3d, bench.cam, save_path)
 

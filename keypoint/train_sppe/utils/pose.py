@@ -1,8 +1,3 @@
-# -----------------------------------------------------
-# Copyright (c) Shanghai Jiao Tong University. All rights reserved.
-# Written by Jiefeng Li (jeff.lee.sjtu@gmail.com)
-# -----------------------------------------------------
-
 from utils.img import (load_image, drawGaussian, cropBox, transformBox, flip, shuffleLR)
 import torch
 import numpy as np

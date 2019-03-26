@@ -29,7 +29,7 @@ class InferenNet_fast(nn.Module):
     def __init__(self, kernel_size, name, kpnum):
         super(InferenNet_fast, self).__init__()
         model = createModel().cuda()
-        path = '/home/penggao/projects/kp6d/keypoint/exp/final_model/%s.pkl' % name
+        path = '/home/penggao/projects/pose/kp6d/keypoint/exp/final_model/%s.pkl' % name
         print('Loading pose model from {}'.format(path))
         model.load_state_dict(torch.load(path))
         model.eval()

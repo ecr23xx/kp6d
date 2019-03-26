@@ -5,9 +5,10 @@ from tqdm import tqdm
 from PIL import Image, ImageDraw
 from torchvision import transforms
 
-from data.sixd import SixdToolkit
-from detect.eval.src.config import *
+from data.linemod.sixd import SixdToolkit
 from detect.eval.src.detector import Detector
+from detect.eval.src.dataset import prepare_dataset
+from detect.eval.src.config import prepare_weight, prepare_cfg
 from utils import draw_keypoints, crop_from_dets
 from keypoint.sppe.src.main_fast_inference import InferenNet_fast
 from keypoint.sppe.src.utils.eval import getPrediction
@@ -19,7 +20,7 @@ def parse_arg():
     parser.add_argument('--bs', type=int, help="Batch size")
     parser.add_argument('--reso', type=int, help="Image resolution")
     parser.add_argument('--gpu', default='0,1,2,3', help="GPU ids")
-    parser.add_argument('--name', type=str, choices=['single'])
+    parser.add_argument('--name', type=str, choices=['linemod-single'])
     parser.add_argument('--seq', type=str, help="Sequence number")
     parser.add_argument('--ckpt', type=str, help="Checkpoint path")
     return parser.parse_args()

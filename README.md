@@ -43,11 +43,23 @@ Run [scripts/eval.sh](scripts/eval.sh) to estimate the pose and evaluate the res
 
 ## Results
 
-| Sequence | Mean ADD | Mean IoU | Mean 2d Projection Acc |
-| -------- | -------- | -------- | ---------------------- |
-| 01 Ape   | 0.670    | 1.000    | 0.983                  |
-|          |          |          |                        |
-|          |          |          |                        |
+### 17 SIFT keypoints
+
+| Sequence       | Mean ADD Acc | Mean 2d Projection Acc |
+| -------------- | ------------ | ---------------------- |
+| 01 Ape         |              |                        |
+| 02 Benchvise   | 0.965        | 0.984                  |
+| 04 Camera      | 0.791        | 0.986                  |
+| 05 Can         | 0.766        | 0.971                  |r
+| 06 Cat         | 0.660        | 0.986                  |
+| 08 Driller     | 0.857        | 0.955                  |
+| 09 Duck        | 0.471        | 0.987                  |
+| 10 Eggbox      | 0.671        | 0.994                  |
+| 11 Glue        | 0.598        | 0.985                  |
+| 12 Holepuncher | 0.637        | 0.993                  |
+| 13 Iron        | 0.955        | 0.983                  |
+| 14 Lamp        | 0.949        | 0.973                  |
+| Average        |              |                        |
 
 
 

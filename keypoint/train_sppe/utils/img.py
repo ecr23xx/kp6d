@@ -1,8 +1,3 @@
-# -----------------------------------------------------
-# Copyright (c) Shanghai Jiao Tong University. All rights reserved.
-# Written by Jiefeng Li (jeff.lee.sjtu@gmail.com)
-# -----------------------------------------------------
-
 import numpy as np
 import torch
 import scipy.misc
@@ -206,64 +201,3 @@ def shuffleLR_v(x, dataset, cuda=False):
         x = x.cuda()
     x = torch.autograd.Variable(x)
     return x
-
-
-# def vis_frame(frame, im_res, format='coco'):
-#     '''
-#     frame: frame image
-#     im_res: im_res of predictions
-#     format: coco or mpii
-
-#     return rendered image
-#     '''
-#     if format == 'coco':
-#         l_pair = [
-#             (0, 1), (0, 2), (1, 3), (2, 4),  # Head
-#             (5, 6), (5, 7), (7, 9), (6, 8), (8, 10),
-#             (5, 11), (6, 12),  # Body
-#             (11, 13), (12, 14), (13, 15), (14, 16)
-#         ]
-#         p_color = [RED, RED, RED, RED, RED, YELLOW, YELLOW, YELLOW,
-#                    YELLOW, YELLOW, YELLOW, GREEN, GREEN, GREEN, GREEN, GREEN, GREEN]
-#         line_color = [YELLOW, YELLOW, YELLOW, YELLOW, BLUE, BLUE,
-#                       BLUE, BLUE, BLUE, PURPLE, PURPLE, RED, RED, RED, RED]
-#     elif format == 'mpii':
-#         l_pair = [
-#             (8, 9), (11, 12), (11, 10), (2, 1), (1, 0),
-#             (13, 14), (14, 15), (3, 4), (4, 5),
-#             (8, 7), (7, 6), (6, 2), (6, 3), (8, 12), (8, 13)
-#         ]
-#         p_color = [PURPLE, BLUE, BLUE, RED, RED, BLUE, BLUE, RED,
-#                    RED, PURPLE, PURPLE, PURPLE, RED, RED, BLUE, BLUE]
-#         line_color = [PURPLE, BLUE, BLUE, RED, RED, BLUE, BLUE,
-#                       RED, RED, PURPLE, PURPLE, RED, RED, BLUE, BLUE]
-#     else:
-#         raise NotImplementedError
-
-#     im_name = im_res['imgname'].split('/')[-1]
-#     img = frame.copy()
-#     for human in im_res['result']:
-#         part_line = {}
-#         kp_preds = human['keypoints']
-#         kp_scores = human['kp_score']
-#         # Draw keypoints
-#         for n in range(kp_scores.shape[0]):
-#             if kp_scores[n] <= 0.15:
-#                 continue
-#             cor_x, cor_y = int(kp_preds[n, 0]), int(kp_preds[n, 1])
-#             part_line[n] = (cor_x, cor_y)
-#             cv2.circle(img, (cor_x, cor_y), 4, p_color[n], -1)
-#             # Now create a mask of logo and create its inverse mask also
-#             #transparency = max(0, min(1, kp_scores[n]))
-#             #img = cv2.addWeighted(bg, transparency, img, 1, 0)
-#         # Draw limbs
-#         for i, (start_p, end_p) in enumerate(l_pair):
-#             if start_p in part_line and end_p in part_line:
-#                 start_xy = part_line[start_p]
-#                 end_xy = part_line[end_p]
-#                 cv2.line(img, start_xy, end_xy,
-#                          line_color[i], (0.5 * (kp_scores[start_p] + kp_scores[end_p])) + 1)
-#                 #transparency = max(
-#                 #    0, min(1, (kp_scores[start_p] + kp_scores[end_p])))
-#                 #img = cv2.addWeighted(bg, transparency, img, 1, 0)
-#     return img

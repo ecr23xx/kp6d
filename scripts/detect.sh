@@ -1,7 +1,7 @@
-cd /home/penggao/projects/kp6d
+cd /home/penggao/projects/pose/kp6d
 python detect.py --bs=4 \
                  --reso=416 \
                  --gpu=3 \
-                 --name=single \
-                 --seq=01 \
-                 --ckpt=01.best.weights
+                 --name=linemod-single \
+                 --seq=02 \
+                 --ckpt=02.best.weights

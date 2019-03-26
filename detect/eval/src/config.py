@@ -3,68 +3,8 @@ import torch
 import json
 from torchvision import transforms
 
-from detect.eval.src.dataset import LinemodSingleDataset
 opj = os.path.join
-
-ROOT = '/home/penggao/projects/kp6d/detect'
-
-
-def prepare_dataset(name, reso, bs, seq=None):
-    """
-    Args
-    - name: (str) Dataset name
-    - reso: (int) Image resolution
-    - bs: (int) Batch size
-    - seq: (str, optional) Sequence number for linemod
-    """
-    LINEMOD = '/home/penggao/data/sixd/hinterstoisser/test'
-
-    train_transform = transforms.Compose([
-        transforms.Resize(size=(reso, reso), interpolation=3),
-        transforms.ColorJitter(brightness=1.5, saturation=1.5, hue=0.2),
-        transforms.RandomVerticalFlip(),
-        transforms.ToTensor()
-    ])
-
-    val_transform = transforms.Compose([
-        transforms.Resize(size=(reso, reso), interpolation=3),
-        transforms.ToTensor()
-    ])
-
-    if name == 'single':
-        train_datasets = LinemodSingleDataset(
-            root=LINEMOD,
-            seq=seq,
-            listfile=opj(LINEMOD, seq, 'train.txt'),
-            transform=train_transform
-        )
-
-        val_datasets = LinemodSingleDataset(
-            root=LINEMOD,
-            seq=seq,
-            listfile=opj(LINEMOD, seq, 'val.txt'),
-            transform=val_transform
-        )
-    else:
-        raise NotImplementedError
-
-    train_dataloder = torch.utils.data.DataLoader(
-        dataset=train_datasets,
-        batch_size=bs,
-        shuffle=True,
-        num_workers=4,
-        pin_memory=True
-    )
-
-    val_dataloder = torch.utils.data.DataLoader(
-        dataset=val_datasets,
-        batch_size=bs,
-        shuffle=True,
-        num_workers=4,
-        pin_memory=True
-    )
-
-    return train_dataloder, val_dataloder
+ROOT = '/home/penggao/projects/pose/kp6d/detect'
 
 
 def prepare_weight(ckpt):
@@ -86,8 +26,10 @@ def prepare_cfg(name):
     Return
     - cfgfile: (str) Configuration file path
     """
-    if name == 'single':
+    if name == 'linemod-single':
         return opj(ROOT, 'darknet/cfg/single.cfg')
+    elif name == 'ycb':
+        return opj(ROOT, 'darknet/cfg/ycb.cfg')
     else:
         raise NotImplementedError
 
@@ -100,7 +42,14 @@ def class_name(name, idx):
     """
     LINEMOD = ('ape', 'bvise', 'bowl', 'camera', 'can', 'cat', 'cup', 'driller',
                'duck', 'eggbox', 'glue', 'holepuncher', 'iron', 'lamp', 'phone')
-    if name == 'single' or name == 'linemod':
+    YCB = ('002_master_chef_can', '003_cracker_box', '004_sugar_box', '005_tomato_soup_can'
+           '006_mustard_bottle', '007_tuna_fish_can', '008_pudding_box', '009_gelatin_box',
+           '010_potted_meat_can', '011_banana', '019_pitcher_base', '021_bleach_cleanser',
+           '024_bowl', '025_mug', '035_power_drill', '036_wood_block', '037_scissors',
+           '040_large_marker', '051_large_clamp', '052_extra_large_clamp', '061_foam_brick')
+    if 'linemod' in name:
         return LINEMOD[int(idx) - 1]
+    elif 'ycb' in name:
+        return YCB[int(idx) - 1]
     else:
         raise NotImplementedError

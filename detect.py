@@ -1,7 +1,8 @@
 import os
 import argparse
 
-from detect.eval.src.config import *
+from detect.eval.src.config import prepare_cfg, prepare_weight
+from detect.eval.src.dataset import prepare_dataset
 from detect.eval.src.detector import Detector
 
 
@@ -10,7 +11,7 @@ def parse_arg():
     parser.add_argument('--bs', type=int, help="Batch size")
     parser.add_argument('--reso', type=int, help="Image resolution")
     parser.add_argument('--gpu', default='0,1,2,3', help="GPU ids")
-    parser.add_argument('--name', type=str, choices=['single'])
+    parser.add_argument('--name', type=str, choices=['linemod-single'])
     parser.add_argument('--seq', type=str, help="Sequence number")
     parser.add_argument('--ckpt', type=str, help="Checkpoint path")
     return parser.parse_args()

@@ -1,2 +1,3 @@
-cd /home/penggao/projects/kp6d/
-python eval.py --seq=01
+cd /home/penggao/projects/pose/kp6d/
+CUDA_VISIBLE_DEVICES=1
+python eval.py --seq=14

@@ -3,15 +3,14 @@ import argparse
 from tqdm import tqdm
 
 from metrics import *
-from data.sixd import SixdToolkit
+from data.linemod.sixd import SixdToolkit
 
 NAMES = ('ape', 'bvise', 'bowl', 'camera', 'can', 'cat', 'cup',
          'driller', 'duck', 'eggbo', 'glue', 'holepuncher', 'iron', 'lamp', 'phone')
 
 
 def parse_arg():
-    parser = argparse.ArgumentParser(description='YOLO v3 evaluation')
-    parser.add_argument('--name', type=str, choices=['single'])
+    parser = argparse.ArgumentParser(description='KP6D evaluation')
     parser.add_argument('--seq', type=str, help="Sequence number")
     return parser.parse_args()
 
@@ -47,7 +46,7 @@ if __name__ == '__main__':
             # ADD
             add = ADD_err(gt_pose, pred_pose, kp3d)
             add_errs.append(add)
-            adds.append(add < diameter)
+            adds.append(add < 0.1 * diameter)
 
             # 2D REPROJECTION ERROR
             err_2d = projection_error_2d(gt_pose, pred_pose, kp3d, bench.cam)

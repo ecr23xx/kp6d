@@ -76,7 +76,7 @@ For every sequence
 Because object detection part will be integerated into the whole pose estimation pipeline finally, we only provide a [demo.py](/demo.py) to test this evaluation part. Run following script, and detection results (images with bounding boxes) will be saved to [eval/results/](eval/results)
 
 ```
-cd /home/penggao/projects/kp6d/
+cd /home/penggao/projects/pose/kp6d/
 python keypoint.py --bs=BATCH SIZE \
                    --reso=RESOLUTION \
                    --gpu=GPU ID \
@@ -86,4 +86,15 @@ python keypoint.py --bs=BATCH SIZE \
 ```
 
 ## Localization result
+
+| Sequence       | Localization Acc |
+| -------------- | ---------------- |
+| 01 Ape         |                  |
+| 02 Benchvise   |                  |
+| 04 Camera      | 97.49%           |
+| 05 Can         | 91.39%           |
+| 06 Cat         | 90.52%           |
+| 10 Eggbox      | 95.99%           |
+| 11 Glue        | 94.04%           |
+| 13 Iron        | 95.89%           |
 

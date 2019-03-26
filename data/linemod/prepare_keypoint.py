@@ -1,4 +1,3 @@
-from sixd import SixdToolkit
 import os
 import sys
 import h5py
@@ -7,6 +6,7 @@ import numpy as np
 from tqdm import tqdm
 opj = os.path.join
 
+from sixd import SixdToolkit
 
 YOLOPOSE = '/media/data_2/LINEMOD'
 LINEMOD = '/media/data_2/SIXDB/hinterstoisser'
@@ -46,7 +46,7 @@ def parse_arg():
     parser.add_argument('--sixdroot', type=str, help="LINEMOD data root directory",
                         default='/home/penggao/data/sixd/hinterstoisser/test')
     parser.add_argument('--kpdroot', type=str, help="KPD data root directory",
-                        default='/home/penggao/projects/kp6d/keypoint/data/linemod/gt')
+                        default='/home/penggao/projects/pose/kp6d/keypoint/data/linemod/gt')
     return parser.parse_args()
 
 
