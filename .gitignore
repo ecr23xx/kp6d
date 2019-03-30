@@ -1,3 +1,6 @@
 .vscode
 .DS_Store
-results
+results/
+scripts/
+detect/darknet/scripts/
+models/

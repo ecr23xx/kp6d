@@ -1,4 +1,5 @@
 import os
+import sys
 import cv2
 import pickle
 import argparse
@@ -11,9 +12,10 @@ from data.linemod.sixd import SixdToolkit
 from detect.eval.src.detector import Detector
 from detect.eval.src.dataset import prepare_dataset
 from detect.eval.src.config import prepare_cfg, prepare_weight
-from keypoint.sppe.src.main_fast_inference import InferenNet_fast
-from keypoint.sppe.src.utils.eval import getPrediction
-from keypoint.sppe.src.utils.img import im_to_torch
+sys.path.append('./keypoint/train_sppe')
+from keypoint.train_sppe.main_fast_inference import InferenNet_fast
+from keypoint.train_sppe.utils.eval import getPrediction
+from keypoint.train_sppe.utils.img import im_to_torch
 
 
 def parse_arg():

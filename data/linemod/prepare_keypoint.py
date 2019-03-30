@@ -41,7 +41,7 @@ def parse_arg():
     parser.add_argument('--seq', type=str, required=True)
     parser.add_argument('--kpnum', default=17, choices=[17],
                         type=int, help="Number of keypoints")
-    parser.add_argument('--kptype', default='sift', choices=['sift'],
+    parser.add_argument('--kptype', default='sift', choices=['sift', 'cluster'],
                         type=str, help="Type of keypoints")
     parser.add_argument('--sixdroot', type=str, help="LINEMOD data root directory",
                         default='/home/penggao/data/sixd/hinterstoisser/test')

@@ -44,7 +44,10 @@ if __name__ == '__main__':
         ious.append(iou)
         if iou > 0.5:
             # ADD
-            add = ADD_err(gt_pose, pred_pose, kp3d)
+            if args.seq == '10' or args.seq == '11':
+                add = ADDS_err(gt_pose, pred_pose, kp3d)
+            else:
+                add = ADD_err(gt_pose, pred_pose, kp3d)
             add_errs.append(add)
             adds.append(add < 0.1 * diameter)
 

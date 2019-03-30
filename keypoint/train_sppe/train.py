@@ -5,7 +5,7 @@ from tqdm import tqdm
 from tensorboardX import SummaryWriter
 
 from opt import opt
-from models.FastPose import createModel
+from models.FastPose import FastPose_SE
 from utils.dataset import coco, linemod
 from utils.eval import DataLogger, accuracy
 from utils.img import flip_v, shuffleLR_v
@@ -92,7 +92,8 @@ def valid(val_loader, m, criterion, optimizer, writer):
         #         loss=lossLogger.avg,
         #         acc=accLogger.avg * 100)
         # )
-        val_loader_desc.set_postfix(loss='%.2e' % lossLogger.avg, acc='%.2f%%' % (accLogger.avg * 100))
+        val_loader_desc.set_postfix(
+            loss='%.2e' % lossLogger.avg, acc='%.2f%%' % (accLogger.avg * 100))
 
     val_loader_desc.close()
 
@@ -103,8 +104,10 @@ def main():
     # Model Initialize
     expID = '%s_%s_%s_%s%s' % (opt.seq, opt.nClasses, opt.kptype, opt.datatype,
                                '_dpg' if opt.addDPG else '')
+    print(expID)
 
-    m = createModel().cuda()
+    m = FastPose_SE(opt.nClasses).cuda()
+
     if opt.loadModel:
         print('[LOG] Loading model from {}'.format(opt.loadModel))
         m.load_state_dict(torch.load(opt.loadModel))
@@ -124,28 +127,11 @@ def main():
                 os.mkdir("../exp/{}/{}".format(opt.dataset, expID))
 
     criterion = torch.nn.MSELoss().cuda()
-
-    if opt.optMethod == 'rmsprop':
-        optimizer = torch.optim.RMSprop(m.parameters(),
-                                        lr=opt.LR,
-                                        momentum=opt.momentum,
-                                        weight_decay=opt.weightDecay)
-    elif opt.optMethod == 'adam':
-        optimizer = torch.optim.Adam(
-            m.parameters(),
-            lr=opt.LR
-        )
-    else:
-        raise Exception
-
-    writer = SummaryWriter(
-        'tensorboard/{}/{}'.format(opt.dataset, expID))
+    optimizer = torch.optim.Adam(m.parameters(), lr=opt.LR)
+    writer = SummaryWriter('tensorboard/{}/{}'.format(opt.dataset, expID))
 
     # Prepare Dataset
-    if opt.dataset == 'coco':
-        train_dataset = coco.Mscoco(train=True)
-        val_dataset = coco.Mscoco(train=False)
-    elif opt.dataset == 'linemod':
+    if opt.dataset == 'linemod':
         train_dataset = linemod.Linemod(train=True)
         val_dataset = linemod.Linemod(train=False)
 
@@ -166,18 +152,23 @@ def main():
 
         opt.acc = acc
         opt.loss = loss
-        m_dev = m.module
 
         if i % 10 == 0:
             loss, acc = valid(val_loader, m, criterion, optimizer, writer)
-            torch.save(m_dev.state_dict(
-            ), '../exp/{}/{}/model_{}.pkl'.format(opt.dataset, expID, opt.epoch))
+            save_path = '../exp/{}/{}/model_{}.pkl'.format(
+                opt.dataset, expID, opt.epoch
+            )
+            best_path = '../exp/{}/{}/model_best.pkl'.format(
+                opt.dataset, expID
+            )
+            # torch.save(m.module.state_dict(), save_path)
 
             if acc > best_valid_acc:
                 best_epoch = i
                 best_valid_acc = acc
-            print('[LOG] Epoch %d is the best with accuracy %.2f%%!' %
-                (best_epoch, best_valid_acc * 100))
+                torch.save(m.module.state_dict(), best_path)
+                print('[LOG] Epoch %d is the best with accuracy %.2f%%!' %
+                      (best_epoch, best_valid_acc * 100))
 
     writer.close()
 

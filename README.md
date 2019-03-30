@@ -45,21 +45,21 @@ Run [scripts/eval.sh](scripts/eval.sh) to estimate the pose and evaluate the res
 
 ### 17 SIFT keypoints
 
-| Sequence       | Mean ADD Acc | Mean 2d Projection Acc |
-| -------------- | ------------ | ---------------------- |
-| 01 Ape         |              |                        |
-| 02 Benchvise   | 0.965        | 0.984                  |
-| 04 Camera      | 0.791        | 0.986                  |
-| 05 Can         | 0.766        | 0.971                  |r
-| 06 Cat         | 0.660        | 0.986                  |
-| 08 Driller     | 0.857        | 0.955                  |
-| 09 Duck        | 0.471        | 0.987                  |
-| 10 Eggbox      | 0.671        | 0.994                  |
-| 11 Glue        | 0.598        | 0.985                  |
-| 12 Holepuncher | 0.637        | 0.993                  |
-| 13 Iron        | 0.955        | 0.983                  |
-| 14 Lamp        | 0.949        | 0.973                  |
-| Average        |              |                        |
+| Sequence       | Mean ADD Acc  | Mean 2d Projection Acc | Backbone   |
+| -------------- | ------------- | ---------------------- | ---------- |
+| 01 Ape         | 0.456         | 0.990                  | ResNet-50  |
+| 02 Benchvise   | 0.965 (99.9)  | 0.984                  |            |
+| 04 Camera      | 0.775 (86.86) | 0.986                  | ResNet-101 |
+| 05 Can         | 0.863 (95.47) | 0.981                  |            |
+| 06 Cat         | 0.780 (79.34) | 0.990                  | ResNet-50  |
+| 08 Driller     | 0.867 (96.43) | 0.952                  | ResNet-101 |
+| 09 Duck        | 0.532         | 0.988                  | ResNet-50  |
+| 10 Eggbox      | 0.671 (99.15) | 0.994                  |            |
+| 11 Glue        | 0.598 (95.66) | 0.985                  |            |
+| 12 Holepuncher | 0.654 (81.92) | 0.992                  |            |
+| 13 Iron        | 0.955 (98.88) | 0.983                  |            |
+| 14 Lamp        | 0.949 (99.33) | 0.973                  |            |
+| Average        | (0.886)       |                        |            |
 
 
 

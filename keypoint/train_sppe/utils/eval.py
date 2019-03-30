@@ -1,4 +1,4 @@
-from opt import opt
+# from opt import opt
 import sys
 import numpy as np
 
@@ -6,7 +6,10 @@ import torch
 from pycocotools.coco import COCO
 from pycocotools.cocoeval import COCOeval
 
-from utils.img import transformBoxInvert
+try:
+    from keypoint.train_sppe.utils.img import transformBoxInvert
+except Exception:
+    from utils.img import transformBoxInvert
 
 
 class DataLogger(object):
@@ -36,7 +39,8 @@ class NullWriter(object):
 
 def accuracy(output, label, dataset, out_offset=None):
     if type(output) == list:
-        return accuracy(output[opt.nStack - 1], label[opt.nStack - 1], dataset, out_offset)
+        # return accuracy(output[opt.nStack - 1], label[opt.nStack - 1], dataset, out_offset)
+        return accuracy(output[7], label[7], dataset)
     else:
         return heatmapAccuracy(output.cpu().data, label.cpu().data, dataset.accIdxs)
 
@@ -45,7 +49,8 @@ def heatmapAccuracy(output, label, idxs):
     preds = getPreds(output)
     gt = getPreds(label)
 
-    norm = torch.ones(preds.size(0)) * opt.outputResH / 10
+    # norm = torch.ones(preds.size(0)) * opt.outputResH / 10
+    norm = torch.ones(preds.size(0)) * 96 / 10
     dists = calc_dists(preds, gt, norm)
 
     acc = torch.zeros(len(idxs) + 1)
@@ -110,7 +115,8 @@ def postprocess(output):
         for j in range(p.size(1)):
             hm = output[i][j]
             pX, pY = int(round(p[i][j][0])), int(round(p[i][j][1]))
-            if 0 < pX < opt.outputResW - 1 and 0 < pY < opt.outputResH - 1:
+            # if 0 < pX < opt.outputResW - 1 and 0 < pY < opt.outputResH - 1:
+            if 0 < pX < 80 - 1 and 0 < pY < 96 - 1:
                 diff = torch.Tensor(
                     (hm[pY][pX + 1] - hm[pY][pX - 1], hm[pY + 1][pX] - hm[pY - 1][pX]))
                 p[i][j] += diff.sign() * 0.25
@@ -119,7 +125,7 @@ def postprocess(output):
     return p
 
 
-def getPrediction(hms, pt1, pt2, inpH, inpW, resH, resW):
+def getPrediction(hms, pt1, pt2, inpH=320, inpW=256, resH=80, resW=64):
     assert hms.dim() == 4, 'Score maps should be 4-dim'
     maxval, idx = torch.max(hms.view(hms.size(0), hms.size(1), -1), 2)
 
@@ -140,7 +146,8 @@ def getPrediction(hms, pt1, pt2, inpH, inpW, resH, resW):
             hm = hms[i][j]
             pX, pY = int(round(float(preds[i][j][0]))), int(
                 round(float(preds[i][j][1])))
-            if 1 < pX < opt.outputResW - 2 and 1 < pY < opt.outputResH - 2:
+            # if 1 < pX < opt.outputResW - 2 and 1 < pY < opt.outputResH - 2:
+            if 0 < pX < 80 - 1 and 0 < pY < 96 - 1:
                 diff = torch.Tensor(
                     (hm[pY][pX + 1] - hm[pY][pX - 1], hm[pY + 1][pX] - hm[pY - 1][pX]))
                 diff = diff.sign() * 0.25

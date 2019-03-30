@@ -13,6 +13,22 @@ def ADD_err(gt_pose, est_pose, model):
     v_B = np.array([x for x in v_B])
     return np.mean(np.linalg.norm(v_A - v_B, axis=1))
 
+def ADDS_err(gt_pose, est_pose, model):
+    def transform_points(points_3d, mat):
+        rot = np.matmul(mat[:3, :3], points_3d.T)
+        return rot.transpose() + mat[:3, 3]
+
+    v_A = transform_points(model, gt_pose)
+    v_B = transform_points(model, est_pose)
+    v_A = np.array([x for x in v_A])
+    v_B = np.array([x for x in v_B])
+
+    dist = []
+    for va in v_A:
+        x = np.random.randint(0, v_B.shape[0])
+        dist.append(np.linalg.norm(va - v_B[x:x+100], axis=1).min())
+    return np.mean(dist)
+
 
 def rot_error(gt_pose, est_pose):
     def matrix2quaternion(m):

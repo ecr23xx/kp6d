@@ -1,5 +1,6 @@
 import os
 import cv2
+import torch
 import argparse
 from tqdm import tqdm
 from PIL import Image, ImageDraw
@@ -9,7 +10,7 @@ from data.linemod.sixd import SixdToolkit
 from detect.eval.src.detector import Detector
 from detect.eval.src.dataset import prepare_dataset
 from detect.eval.src.config import prepare_weight, prepare_cfg
-from utils import draw_keypoints, crop_from_dets
+from utils import draw_keypoints, crop_from_dets, draw_heatmap
 from keypoint.sppe.src.main_fast_inference import InferenNet_fast
 from keypoint.sppe.src.utils.eval import getPrediction
 from keypoint.sppe.src.utils.img import im_to_torch
@@ -49,6 +50,11 @@ if __name__ == '__main__':
 
     tbar = tqdm(val_dataloder)
     for batch_idx, (inputs, labels, meta) in enumerate(tbar):
+        img_path = meta['path'][0]
+        idx = img_path.split('/')[-1].split('.')[0]
+        if idx != '0361':
+            continue
+
         inputs = inputs.cuda()
         with torch.no_grad():
             bboxes, confs = detector.detect(inputs)
@@ -62,12 +68,15 @@ if __name__ == '__main__':
             _, pred_kps, pred_kps_score = getPrediction(
                 hms, pt1.unsqueeze(0), pt2.unsqueeze(0), 320, 256, 80, 64)
 
-        img_path = meta['path'][0]
-        idx = img_path.split('/')[-1].split('.')[0]
+
+
         f = bench.frames[args.seq][int(idx)]
         annot = f['annots'][f['obj_ids'].index(int(args.seq))]
         gt_kps = annot['kps']
 
-        save_path = opj('./results/kps/%s.png' % idx)
+        save_dir = os.path.join('./results/hms/%s' % idx)
+        draw_heatmap(hms[0], save_dir)
+
+        save_path = os.path.join('./results/kps/%s.png' % idx)
         draw_keypoints(img_path, gt_kps, pred_kps[0].numpy(), bboxes[0].numpy(),
                        pred_kps_score[0].squeeze().numpy(), save_path)

@@ -4,7 +4,6 @@ import scipy.misc
 from torchsample.transforms import SpecialCrop, Pad
 import torch.nn.functional as F
 import cv2
-from opt import opt
 
 
 RED = (0, 0, 255)

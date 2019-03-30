@@ -7,8 +7,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import torch.nn.functional as F
 
-from keypoint.sppe.src.utils.img import cropBox
-from keypoint.sppe.src.torchsample.torchsample.transforms import SpecialCrop, Pad
+from keypoint.train_sppe.utils.img import cropBox
+from keypoint.train_sppe.torchsample.torchsample.transforms import SpecialCrop, Pad
 
 
 def draw_heatmap(heatmaps, save_dir):
@@ -19,6 +19,8 @@ def draw_heatmap(heatmaps, save_dir):
     - save_dir: (str)
     """
     heatmaps = heatmaps.cpu().numpy()
+    from IPython import embed
+    embed()
     for i in range(heatmaps.shape[0]):
         fig, ax = plt.subplots()
         ax.axis('off')

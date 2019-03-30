@@ -7,9 +7,9 @@ import torch.utils.data
 import torch.utils.data.distributed
 import torch.nn.functional as F
 
-from keypoint.sppe.src.utils.img import flip_v, shuffleLR
-from keypoint.sppe.src.utils.eval import getPrediction
-from keypoint.sppe.src.models.FastPose import createModel
+from keypoint.train_sppe.utils.img import flip_v, shuffleLR
+from keypoint.train_sppe.utils.eval import getPrediction
+from keypoint.train_sppe.models.FastPose import FastPose_SE
 
 
 import torch._utils
@@ -28,7 +28,7 @@ except AttributeError:
 class InferenNet_fast(nn.Module):
     def __init__(self, kernel_size, name, kpnum):
         super(InferenNet_fast, self).__init__()
-        model = createModel().cuda()
+        model = FastPose_SE(kpnum).cuda()
         path = '/home/penggao/projects/pose/kp6d/keypoint/exp/final_model/%s.pkl' % name
         print('Loading pose model from {}'.format(path))
         model.load_state_dict(torch.load(path))

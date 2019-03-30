@@ -21,7 +21,7 @@ def parse_arg():
 
 if __name__ == '__main__':
     args = parse_arg()
-    print("[LOG] Preparing synthetic LINEMOD images for darknet training")
+    print("[LOG] Preparing LINEMOD images for darknet training")
     print("[LOG] Sequence: %s %s" % (args.seq, NAMES[int(args.seq) - 1]))
 
     # object detection is not related with keypoints number and type
