@@ -4,6 +4,7 @@ import h5py
 import argparse
 import numpy as np
 from tqdm import tqdm
+
 opj = os.path.join
 
 from sixd import SixdToolkit
@@ -29,7 +30,7 @@ def split():
                 f.writelines(content)
         else:
             num = len(total)
-            trainlists = np.random.choice(num, int(num/10), replace=False)
+            trainlists = np.random.choice(num, int(num / 10), replace=False)
             content = ['%04d\n' % x for x in trainlists]
             linemod_trainfile = opj(LINEMOD, 'test', seq, 'train.txt')
             with open(linemod_trainfile, 'w') as f:
@@ -53,13 +54,12 @@ def parse_arg():
 LINEMODNAMES = ('ape', 'bvise', 'bowl', 'camera', 'can', 'cat', 'cup',
                 'driller', 'duck', 'eggbo', 'glue', 'holepuncher', 'iron', 'lamp', 'phone')
 
-
 if __name__ == '__main__':
     args = parse_arg()
     print("[LOG] Preparing h5 for KPD training")
     print("[LOG] Number of keypoints: %d" % args.kpnum)
     print("[LOG] Type of keypoints: %s" % args.kptype)
-    print("[LOG] Sequence: %s %s" % (args.seq, LINEMODNAMES[int(args.seq)-1]))
+    print("[LOG] Sequence: %s %s" % (args.seq, LINEMODNAMES[int(args.seq) - 1]))
 
     bench = SixdToolkit(dataset='hinterstoisser', kpnum=args.kpnum,
                         kptype=args.kptype, is_train=False)
