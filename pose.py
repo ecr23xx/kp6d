@@ -22,6 +22,7 @@ def parse_arg():
     parser = argparse.ArgumentParser(description='YOLO v3 evaluation')
     # parser.add_argument('--bs', type=int, help="Batch size")
     parser.add_argument('--reso', type=int, help="Image resolution")
+    parser.add_argument('--kptype', type=str, help="Keypoint type")
     parser.add_argument('--gpu', default='0,1,2,3', help="GPU ids")
     parser.add_argument('--name', type=str, choices=['linemod-single'])
     parser.add_argument('--seq', type=str, help="Sequence number")
@@ -37,7 +38,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 if __name__ == '__main__':
     print(args)
     bench = SixdToolkit(dataset='hinterstoisser', kpnum=17,
-                        kptype='sift', is_train=False)
+                        kptype=args.kptype, is_train=False)
     kp3d = bench.models[args.seq]
 
     _, val_dataloder = prepare_dataset(args.name, args.reso, 1, args.seq)
@@ -72,8 +73,12 @@ if __name__ == '__main__':
                 continue
 
             # pose estimation
+            K = 10
+            best_idx = np.argsort(pred_kps_score[0, :, 0]).flip(0)
+            best_k = best_idx[:K]
+
             pred_pose = bench.solve_pnp(
-                bench.kps[args.seq], pred_kps[0].numpy())
+                bench.kps[args.seq][best_k], pred_kps[0][best_k].numpy())
 
             result[int(idx)] = {
                 'bbox': bboxes[0].numpy(),

@@ -24,9 +24,8 @@ def ADDS_err(gt_pose, est_pose, model):
     v_B = np.array([x for x in v_B])
 
     dist = []
-    for va in v_A:
-        x = np.random.randint(0, v_B.shape[0])
-        dist.append(np.linalg.norm(va - v_B[x:x+100], axis=1).min())
+    for idx, va in enumerate(v_A):
+        dist.append(np.linalg.norm(va - v_B, axis=1).min())
     return np.mean(dist)
 
 

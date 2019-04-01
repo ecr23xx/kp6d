@@ -7,7 +7,7 @@ parser.add_argument('--expID', default='default', type=str,
                     help='Experiment ID')
 parser.add_argument('--dataset', default='coco', type=str,
                     help='Dataset choice: mpii | coco')
-parser.add_argument('--nThreads', default=30, type=int,
+parser.add_argument('--nThreads', default=4, type=int,
                     help='Number of data loading threads')
 parser.add_argument('--snapshot', default=5, type=int,
                     help='How often to take a snapshot of the model (0 = never)')
@@ -43,7 +43,7 @@ parser.add_argument('--optMethod', default='rmsprop', type=str,
 
 
 "----------------------------- Training options -----------------------------"
-parser.add_argument('--nEpochs', default=500, type=int,
+parser.add_argument('--nEpochs', default=1000, type=int,
                     help='Number of epoches to train')
 parser.add_argument('--epoch', default=0, type=int,
                     help='Current epoch')

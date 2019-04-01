@@ -6,7 +6,7 @@ from tensorboardX import SummaryWriter
 
 from opt import opt
 from models.FastPose import FastPose_SE
-from utils.dataset import coco, linemod
+from utils.dataset import linemod
 from utils.eval import DataLogger, accuracy
 from utils.img import flip_v, shuffleLR_v
 

@@ -39,8 +39,8 @@ class SixdToolkit:
         self.kptype = kptype
         self.is_train = is_train
 
-        self.pklpath = opj(self.root, 'libs/benchmark.%s.pkl' %
-                           ('train' if is_train else 'test'))
+        self.pklpath = opj(self.root, 'libs/benchmark.%s-%d-%s.pkl' %
+            ('train' if is_train else 'test', self.kpnum, self.kptype))
         self.seq_num = 15
 
         self.cam = np.zeros((3, 3))
