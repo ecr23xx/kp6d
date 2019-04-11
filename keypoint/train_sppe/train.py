@@ -1,12 +1,12 @@
 import os
 import torch
 import torch.utils.data
-from tqdm import tqdm
+from tqdm import tqdm, trange
 from tensorboardX import SummaryWriter
 
 from opt import opt
 from models.FastPose import FastPose_SE
-from utils.dataset import linemod
+from utils.dataset import linemod, occlinemod
 from utils.eval import DataLogger, accuracy
 from utils.img import flip_v, shuffleLR_v
 
@@ -16,9 +16,9 @@ def train(train_loader, m, criterion, optimizer, writer):
     accLogger = DataLogger()
     m.train()
 
-    train_loader_desc = tqdm(train_loader)
+    # train_loader_desc = tqdm(train_loader)
 
-    for i, (inps, labels, setMask, imgset) in enumerate(train_loader_desc):
+    for i, (inps, labels, setMask, imgset) in enumerate(train_loader):
         inps = inps.cuda().requires_grad_()
         labels = labels.cuda()
         setMask = setMask.cuda()
@@ -32,8 +32,8 @@ def train(train_loader, m, criterion, optimizer, writer):
         accLogger.update(acc[0], inps.size(0))
         lossLogger.update(loss.item(), inps.size(0))
 
-        train_loader_desc.set_postfix(
-            loss='%.2e' % lossLogger.avg, acc='%.2f%%' % (accLogger.avg * 100))
+        # train_loader_desc.set_postfix(
+        #     loss='%.2e' % lossLogger.avg, acc='%.2f%%' % (accLogger.avg * 100))
 
         optimizer.zero_grad()
         loss.backward()
@@ -46,7 +46,7 @@ def train(train_loader, m, criterion, optimizer, writer):
         writer.add_scalar(
             'Train/Acc', accLogger.avg, opt.trainIters)
 
-    train_loader_desc.close()
+    # train_loader_desc.close()
 
     return lossLogger.avg, accLogger.avg
 
@@ -56,9 +56,9 @@ def valid(val_loader, m, criterion, optimizer, writer):
     accLogger = DataLogger()
     m.eval()
 
-    val_loader_desc = tqdm(val_loader)
+    # val_loader_desc = tqdm(val_loader)
 
-    for i, (inps, labels, setMask, imgset) in enumerate(val_loader_desc):
+    for i, (inps, labels, setMask, imgset) in enumerate(val_loader):
         inps = inps.cuda()
         labels = labels.cuda()
         setMask = setMask.cuda()
@@ -92,10 +92,10 @@ def valid(val_loader, m, criterion, optimizer, writer):
         #         loss=lossLogger.avg,
         #         acc=accLogger.avg * 100)
         # )
-        val_loader_desc.set_postfix(
-            loss='%.2e' % lossLogger.avg, acc='%.2f%%' % (accLogger.avg * 100))
+    #     val_loader_desc.set_postfix(
+    #         loss='%.2e' % lossLogger.avg, acc='%.2f%%' % (accLogger.avg * 100))
 
-    val_loader_desc.close()
+    # val_loader_desc.close()
 
     return lossLogger.avg, accLogger.avg
 
@@ -134,6 +134,15 @@ def main():
     if opt.dataset == 'linemod':
         train_dataset = linemod.Linemod(train=True)
         val_dataset = linemod.Linemod(train=False)
+    elif opt.dataset == 'occlinemod':
+        train_dataset = occlinemod.OcclusionLinemod(
+            root='/home/penggao/projects/pose/kp6d/keypoint/data/occ',
+            train=True
+        )
+        val_dataset = occlinemod.OcclusionLinemod(
+            root='/home/penggao/projects/pose/kp6d/keypoint/data/occ',
+            train=False
+        )
 
     train_loader = torch.utils.data.DataLoader(
         train_dataset, batch_size=opt.trainBatch, shuffle=True, num_workers=opt.nThreads, pin_memory=True)
@@ -144,10 +153,10 @@ def main():
     m = torch.nn.DataParallel(m).cuda()
     best_valid_acc = 0
     best_epoch = 0
-    for i in range(opt.nEpochs):
+    for i in trange(opt.nEpochs):
         opt.epoch = i
 
-        print("\n[LOG] Epoch %d" % i)
+        # print("\n[LOG] Epoch %d" % i)
         loss, acc = train(train_loader, m, criterion, optimizer, writer)
 
         opt.acc = acc
@@ -167,8 +176,8 @@ def main():
                 best_epoch = i
                 best_valid_acc = acc
                 torch.save(m.module.state_dict(), best_path)
-                print('[LOG] Epoch %d is the best with accuracy %.2f%%!' %
-                      (best_epoch, best_valid_acc * 100))
+                # print('[LOG] Epoch %d is the best with accuracy %.2f%%!' %
+                    #   (best_epoch, best_valid_acc * 100))
 
     writer.close()
 

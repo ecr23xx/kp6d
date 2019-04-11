@@ -41,6 +41,8 @@ $ python detect.py --bs=BATCH SIZE \
 
 ## Detection result
 
+### LINEMOD
+
 | Sequence       | AP@0.5 | Recall | Precision | F1-score | Average IoU | Step |
 | -------------- | ------ | ------ | --------- | -------- | ----------- | ---- |
 | 01 ape         | 100.0% | 1.00   | 1.00      | 1.00     | 92.02%      | 4000 |
@@ -57,5 +59,23 @@ $ python detect.py --bs=BATCH SIZE \
 | 15 phone       | 100.0% | 1.00   | 1.00      | 1.00     | 91.97%      | 5500 |
 
 
+### Occlusion LINEMOD
 
+* Step: 5900
+* AP@0.5: 89.32%
+* F1-score: 0.96
+* Recall: 0.95
+* Precision: 0.96
+* Average IoU: 84.42%
+
+| Sequence       | AP@0.5 |
+| -------------- | ------ |
+| 01 ape         | 90.72% |
+| 05 can         | 90.91% |
+| 06 cat         | 90.52% |
+| 08 driller     | 90.75% |
+| 09 duck        | 90.84% |
+| 10 eggbox      | 79.87% |
+| 11 glue        | 80.99% |
+| 12 holepuncher | 99.98% |
 

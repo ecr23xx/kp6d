@@ -1,4 +1,5 @@
-from utils.img import (load_image, drawGaussian, cropBox, transformBox, flip, shuffleLR)
+from utils.img import (load_image, drawGaussian, cropBox,
+                       transformBox, flip, shuffleLR)
 import torch
 import numpy as np
 import random
@@ -10,8 +11,8 @@ def rnd(x):
     return max(-2 * x, min(2 * x, np.random.randn(1)[0] * x))
 
 
-def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dataset, train=True, nJoints_coco=50):
-    nJoints_coco = opt.nClasses # added by @pengggao, variable joints
+def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dataset, train=True, nJoints_coco=50, dist=None):
+    nJoints_coco = opt.nClasses
 
     img = load_image(img_path)
     if train:
@@ -53,14 +54,16 @@ def generateSampleBox(img_path, bndbox, part, nJoints, imgset, scale_factor, dat
             xmax = xmin + patchWidth + 1
             ymax = ymin + patchHt + 1
         else:
+            dist = [-0.0142, 0.1158, 0.0043, 0.068,
+                    0.0154, 0.1337, -0.0013, 0.0711]
             xmin = max(
-                1, min(upLeft[0] + np.random.normal(-0.0142, 0.1158) * width, imgwidth - 3))
+                1, min(upLeft[0] + np.random.normal(dist[0], dist[1]) * width,  imgwidth - 3))
             ymin = max(
-                1, min(upLeft[1] + np.random.normal(0.0043, 0.068) * ht, imght - 3))
+                1, min(upLeft[1] + np.random.normal(dist[2], dist[3]) * ht, imght - 3))
             xmax = min(max(
-                xmin + 2, bottomRight[0] + np.random.normal(0.0154, 0.1337) * width), imgwidth - 3)
+                xmin + 2, bottomRight[0] + np.random.normal(dist[4], dist[5]) * width), imgwidth - 3)
             ymax = min(
-                max(ymin + 2, bottomRight[1] + np.random.normal(-0.0013, 0.0711) * ht), imght - 3)
+                max(ymin + 2, bottomRight[1] + np.random.normal(dist[6], dist[7]) * ht), imght - 3)
 
         upLeft[0] = xmin
         upLeft[1] = ymin

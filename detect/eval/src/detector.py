@@ -5,6 +5,7 @@ from tqdm import tqdm
 import torch.nn.functional as F
 from PIL import Image, ImageDraw
 
+from .config import class_name, class_idx
 from detect.eval.src.model import YOLOv3
 from detect.eval.src.utils import crop_img, parse_detection, IoU
 from detect.eval.src.layers import NMSLayer
@@ -26,6 +27,14 @@ class Detector:
         self.nms = NMSLayer(conf_thresh, iou_thresh).cuda()
         self.yolo.load_weights(weightfile)
 
+        self.seq = seq
+        self.dataset = cfgfile.split('/')[-1].split('.')[0]
+        self.seqname = class_name(self.dataset, self.seq)
+        if self.dataset == 'linemod-single':
+            self.cls_idx = 0
+        else:
+            self.cls_idx = class_idx(self.dataset, self.seqname)
+
     def detect(self, inputs):
         """
         Args
@@ -39,12 +48,13 @@ class Detector:
         bboxes = torch.Tensor(bs, 4)
         confs = torch.Tensor(bs, 1)
         detections = self.nms(self.yolo(inputs))
-
         for idx in range(bs):
             detection = detections[detections[:, 0] == idx]
-            bbox, conf = parse_detection(detection.cpu(), self.yolo.reso)
+            bbox, conf = parse_detection(detection.cpu(), self.yolo.reso, cls_idx=self.cls_idx)
             bboxes[idx] = bbox
             confs[idx] = conf
+            if bbox is None:
+                raise Exception
 
         return bboxes, confs
 
@@ -94,10 +104,9 @@ class Detector:
                 img_cls = img_path.split('/')[-3]
                 label = labels[idx]
                 detection = detections[detections[:, 0] == idx]
-                bbox = crop_img(img_path, detection.cpu(), self.yolo.reso)
+                bbox = crop_img(img_path, detection.cpu(), self.yolo.reso, cls_idx=self.cls_idx)
                 if savedir is not None:
                     img = Image.open(img_path)
                     draw = ImageDraw.Draw(img)
                     draw.rectangle((bbox[0], bbox[1], bbox[2], bbox[3]))
                     img.save(opj(savedir, img_name))
-

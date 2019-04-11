@@ -43,7 +43,7 @@ parser.add_argument('--optMethod', default='rmsprop', type=str,
 
 
 "----------------------------- Training options -----------------------------"
-parser.add_argument('--nEpochs', default=1000, type=int,
+parser.add_argument('--nEpochs', default=400, type=int,
                     help='Number of epoches to train')
 parser.add_argument('--epoch', default=0, type=int,
                     help='Current epoch')

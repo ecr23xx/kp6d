@@ -41,7 +41,7 @@ def parse_cfg(cfgfile):
     return blocks
 
 
-def parse_detection(detection, reso):
+def parse_detection(detection, reso, cls_idx=None):
     """
     Parse detection result
 
@@ -58,9 +58,16 @@ def parse_detection(detection, reso):
     h_ratio = 480 / reso
     w_ratio = 640 / reso
 
-    best_idx = np.argmax(detection[:, -3])
-    bbox = detection[best_idx, 1:5]
-    conf = float(detection[best_idx, 6])
+    if cls_idx is not None:
+        detection = detection[detection[:, -1] == cls_idx]
+
+    if detection.size(0) == 0:
+        return None, None
+    else:
+        best_idx = np.argmax(detection[:, -3])
+        bbox = detection[best_idx, 1:5]
+        conf = float(detection[best_idx, 6])
+
     x1, y1, x2, y2 = bbox[0], bbox[1], bbox[2], bbox[3]
     area = torch.Tensor((x1 * w_ratio, y1 * h_ratio,
                          x2 * w_ratio, y2 * h_ratio))
@@ -136,7 +143,7 @@ def IoU(box1, box2, format='corner'):
     return inter_area / (b1_area + b2_area - inter_area)
 
 
-def crop_img(img_path, detection, reso):
+def crop_img(img_path, detection, reso, cls_idx=None):
     """Crop target object in image
 
     Args
@@ -153,8 +160,15 @@ def crop_img(img_path, detection, reso):
     h_ratio = h / reso
     w_ratio = w / reso
 
-    best_idx = np.argmax(detection[:, -3])
-    bbox = detection[best_idx, 1:5]
+    if cls_idx is not None:
+        detection = detection[detection[:, -1] == cls_idx]
+
+    if detection.size(0) == 0:
+        return None
+    else:
+        best_idx = np.argmax(detection[:, -3])
+        bbox = detection[best_idx, 1:5]
+
     x1, y1, x2, y2 = bbox[0], bbox[1], bbox[2], bbox[3]
     area = torch.Tensor((x1 * w_ratio, y1 * h_ratio,
                          x2 * w_ratio, y2 * h_ratio))

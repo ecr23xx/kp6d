@@ -8,14 +8,15 @@ from ..pose import generateSampleBox
 from opt import opt
 
 
-class Linemod(data.Dataset):
-    def __init__(self, train):
+class OcclusionLinemod(data.Dataset):
+    def __init__(self, root, train):
+        self.root = root
         if train:
-            self.img_folder = '/home/penggao/projects/pose/kp6d/keypoint/data/linemod/%s/%s/%s/%s/train' % (
-                opt.datatype, opt.nClasses, opt.kptype, opt.seq)
+            self.img_folder = os.path.join(
+                self.root, str(opt.nClasses), opt.kptype, opt.seq, 'train')
         else:
-            self.img_folder = '/home/penggao/projects/pose/kp6d/keypoint/data/linemod/%s/%s/%s/%s/eval' % (
-                'gt', opt.nClasses, opt.kptype, opt.seq)
+            self.img_folder = os.path.join(
+                self.root, str(opt.nClasses), opt.kptype, opt.seq, 'eval')
         self.is_train = train
         self.inputResH = opt.inputResH
         self.inputResW = opt.inputResW
@@ -34,8 +35,7 @@ class Linemod(data.Dataset):
 
         if train:
             filepath = os.path.join(
-                '/home/penggao/projects/pose/kp6d/keypoint/data/linemod/%s/%s/%s/%s/' % (
-                    opt.datatype, opt.nClasses, opt.kptype, opt.seq), "annot_train.h5")
+                self.root, str(opt.nClasses), opt.kptype, opt.seq, "annot_train.h5")
             with h5py.File(filepath, 'r') as annot:
                 # train
                 self.imgname_coco_train = annot['imgname'][:]
@@ -43,8 +43,7 @@ class Linemod(data.Dataset):
                 self.part_coco_train = annot['part'][:]
         else:
             filepath = os.path.join(
-                '/home/penggao/projects/pose/kp6d/keypoint/data/linemod/%s/%s/%s/%s' % (
-                    'gt', opt.nClasses, opt.kptype, opt.seq), "annot_eval.h5")
+                self.root, str(opt.nClasses), opt.kptype, opt.seq, "annot_eval.h5")
             with h5py.File(filepath, 'r') as annot:
                 # val
                 self.imgname_coco_val = annot['imgname'][:]

@@ -8,50 +8,22 @@ opj = os.path.join
 
 from sixd import SixdToolkit
 
-YOLOPOSE = '/media/data_2/LINEMOD'
-LINEMOD = '/media/data_2/SIXDB/hinterstoisser'
-CLASS_NAMES = ('ape', 'benchvise', 'bowl', 'cam', 'can', 'cat', 'cup',
-               'driller', 'duck', 'eggbox', 'glue', 'holepuncher', 'iron', 'lamp', 'phone')
-
-
-def split():
-    for seq in os.listdir(opj(LINEMOD, 'test')):
-        seq_name = CLASS_NAMES[int(seq) - 1]
-        total = os.listdir(opj(LINEMOD, 'test', seq, 'rgb'))
-        if os.path.exists(opj(YOLOPOSE, seq_name)):
-            yolo_trainfile = opj(YOLOPOSE, seq_name, 'train.txt')
-            with open(yolo_trainfile, 'r') as f:
-                content = f.readlines()
-            content = ['%04d\n' % int(x.split('/')[-1].split('.')[0])
-                       for x in content]
-            linemod_trainfile = opj(LINEMOD, 'test', seq, 'train.txt')
-            with open(linemod_trainfile, 'w') as f:
-                f.writelines(content)
-        else:
-            num = len(total)
-            trainlists = np.random.choice(num, int(num/10), replace=False)
-            content = ['%04d\n' % x for x in trainlists]
-            linemod_trainfile = opj(LINEMOD, 'test', seq, 'train.txt')
-            with open(linemod_trainfile, 'w') as f:
-                f.writelines(content)
+LINEMOD = '/home/penggao/data/sixd/hinterstoisser/test/02'
+KPDROOT = '/home/penggao/projects/pose/kp6d/keypoint/data/occ'
+NAMES = ('ape', 'bvise', 'bowl', 'camera', 'can', 'cat', 'cup',
+                'driller', 'duck', 'eggbox', 'glue', 'holepuncher', 'iron', 'lamp', 'phone')
+OCCNAMES = ('ape', 'can', 'cat', 'driller', 'duck',
+            'eggbox', 'glue', 'holepuncher')
 
 
 def parse_arg():
     parser = argparse.ArgumentParser(description='Synthetic data generator')
     parser.add_argument('--seq', type=str, required=True)
-    parser.add_argument('--kpnum', default=17, choices=[17, 9],
+    parser.add_argument('--kpnum', choices=[17, 9],
                         type=int, help="Number of keypoints")
-    parser.add_argument('--kptype', default='sift', choices=['sift', 'cluster', 'corner'],
+    parser.add_argument('--kptype', choices=['sift', 'cluster', 'corner'],
                         type=str, help="Type of keypoints")
-    parser.add_argument('--sixdroot', type=str, help="LINEMOD data root directory",
-                        default='/home/penggao/data/sixd/hinterstoisser/test')
-    parser.add_argument('--kpdroot', type=str, help="KPD data root directory",
-                        default='/home/penggao/projects/pose/kp6d/keypoint/data/linemod/gt')
     return parser.parse_args()
-
-
-LINEMODNAMES = ('ape', 'bvise', 'bowl', 'camera', 'can', 'cat', 'cup',
-                'driller', 'duck', 'eggbo', 'glue', 'holepuncher', 'iron', 'lamp', 'phone')
 
 
 if __name__ == '__main__':
@@ -59,12 +31,16 @@ if __name__ == '__main__':
     print("[LOG] Preparing h5 for KPD training")
     print("[LOG] Number of keypoints: %d" % args.kpnum)
     print("[LOG] Type of keypoints: %s" % args.kptype)
-    print("[LOG] Sequence: %s %s" % (args.seq, LINEMODNAMES[int(args.seq)-1]))
+    print("[LOG] Sequence: %s %s" % (args.seq, NAMES[int(args.seq)-1]))
+
+    if NAMES[int(args.seq) - 1] not in OCCNAMES:
+        print("[ERROR] Sequence not exist in occlusion linemod")
+        sys.exit()
 
     bench = SixdToolkit(dataset='hinterstoisser', kpnum=args.kpnum,
                         kptype=args.kptype, is_train=False)
-    LINEMOD = opj(args.sixdroot, args.seq)
-    KPDROOT = opj(args.kpdroot, str(args.kpnum), args.kptype, args.seq)
+
+    KPDROOT = opj(KPDROOT, str(args.kpnum), args.kptype, args.seq)
 
     if os.path.exists(KPDROOT):
         print("[WARNING] Overwriting existing images in %s" % KPDROOT)
@@ -85,16 +61,22 @@ if __name__ == '__main__':
         trainlists = f.readlines()
     trainlists = [x.strip() for x in trainlists]
 
+    count = 0
     bboxes = {'train': [], 'eval': []}
     kps = {'train': [], 'eval': []}
     imgnames = {'train': [], 'eval': []}
-    tbar = tqdm(bench.frames[args.seq])
+    tbar = tqdm(bench.frames['02'])
     for idx, f in enumerate(tbar):
         tbar.set_description('%04d' % idx)
         tag = 'train' if '%04d' % idx in trainlists else 'eval'
 
         # annotation
-        annot = f['annots'][f['obj_ids'].index(int(args.seq))]
+        try:
+            annot = f['annots'][f['obj_ids'].index(int(args.seq))]
+        except:
+            print("Sequence %s not exist in frame %d" % (args.seq, idx))
+            continue
+        count += 1
         name_chars = []
         for char in '%012d' % int(idx):
             name_chars.append(ord(char))
@@ -115,4 +97,5 @@ if __name__ == '__main__':
             f.create_dataset("part", data=np.vstack(
                 kps[tag]).reshape(-1, args.kpnum, 2))
 
+    print("[LOG] count =", count)
     print("[LOG] Done. H5 file has been generated in %s" % KPDROOT)

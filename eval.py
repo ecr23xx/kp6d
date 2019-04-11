@@ -11,6 +11,7 @@ NAMES = ('ape', 'bvise', 'bowl', 'camera', 'can', 'cat', 'cup',
 
 def parse_arg():
     parser = argparse.ArgumentParser(description='KP6D evaluation')
+    parser.add_argument('--dataset', type=str, help="Dataset name")
     parser.add_argument('--seq', type=str, help="Sequence number")
     return parser.parse_args()
 
@@ -20,9 +21,14 @@ args = parse_arg()
 if __name__ == '__main__':
     print(args)
     bench = SixdToolkit(dataset='hinterstoisser', kpnum=17,
-                        kptype='sift', is_train=False)
+                        kptype='cluster', is_train=False)
     kp3d = bench.models[args.seq]
     diameter = bench.models_info[args.seq]['diameter']
+
+    if args.dataset == 'linemod-single':
+        frame_seq = args.seq
+    elif args.dataset == 'linemod-occ':
+        frame_seq = '02'
 
     with open('results/%s.pkl' % args.seq, 'rb') as handle:
         result = pickle.load(handle)
@@ -32,8 +38,13 @@ if __name__ == '__main__':
     proj_2d_errs = []
     ious = []
     for k, v in tqdm(result.items()):
-        f = bench.frames[args.seq][k]
-        annot = f['annots'][f['obj_ids'].index(int(args.seq))]
+        f = bench.frames[frame_seq][k]
+        try:
+            annot = f['annots'][f['obj_ids'].index(int(args.seq))]
+        except:
+            # object not found
+            # print("object not found")
+            continue
         gt_pose = annot['pose']
         gt_bbox = annot['bbox']
 
@@ -54,6 +65,9 @@ if __name__ == '__main__':
             # 2D REPROJECTION ERROR
             err_2d = projection_error_2d(gt_pose, pred_pose, kp3d, bench.cam)
             proj_2d_errs.append(err_2d)
+        else:
+            pass
+            # print("iou < 0.5")
 
     PIXEL_THRESH = 5
     mean_add_err = np.mean(add_errs)

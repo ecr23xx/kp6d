@@ -23,8 +23,10 @@ def parse_arg():
     # parser.add_argument('--bs', type=int, help="Batch size")
     parser.add_argument('--reso', type=int, help="Image resolution")
     parser.add_argument('--kptype', type=str, help="Keypoint type")
+    parser.add_argument('--kpnum', type=int, help="Checkpoint path")
+    parser.add_argument('--topk', type=int, help="Checkpoint path")
     parser.add_argument('--gpu', default='0,1,2,3', help="GPU ids")
-    parser.add_argument('--name', type=str, choices=['linemod-single'])
+    parser.add_argument('--name', type=str, choices=['linemod-single', 'linemod-occ'])
     parser.add_argument('--seq', type=str, help="Sequence number")
     parser.add_argument('--ckpt', type=str, help="Checkpoint path")
     parser.add_argument('-save', action='store_true', help="Save pose figure")
@@ -37,7 +39,7 @@ os.environ['CUDA_VISIBLE_DEVICES'] = args.gpu
 
 if __name__ == '__main__':
     print(args)
-    bench = SixdToolkit(dataset='hinterstoisser', kpnum=17,
+    bench = SixdToolkit(dataset='hinterstoisser', kpnum=args.kpnum,
                         kptype=args.kptype, is_train=False)
     kp3d = bench.models[args.seq]
 
@@ -47,7 +49,13 @@ if __name__ == '__main__':
         seq=args.seq,
         weightfile=prepare_weight(args.ckpt)
     )
-    pose_model = InferenNet_fast(5, args.seq, 17).cuda()
+    pose_model = InferenNet_fast(
+        dataset=args.name,
+        kernel_size=5,
+        seqname=args.seq,
+        kpnum=args.kpnum,
+        kptype=args.kptype
+    ).cuda()
 
     tbar = tqdm(val_dataloder)
     result = dict()
@@ -57,7 +65,12 @@ if __name__ == '__main__':
         inputs = inputs.cuda()
         with torch.no_grad():
             # object detection
-            bboxes, confs = detector.detect(inputs)
+            try:
+                bboxes, confs = detector.detect(inputs)
+            except Exception:
+                # No object found
+                # print("detection failed")
+                continue
 
             # keypoint localization
             orig_img = cv2.imread(meta['path'][0])
@@ -69,11 +82,11 @@ if __name__ == '__main__':
                 _, pred_kps, pred_kps_score = getPrediction(
                     hms, pt1.unsqueeze(0), pt2.unsqueeze(0), 320, 256, 80, 64)
             except Exception:
-                print("Jump Error frame", idx)
+                # print("Jump Error frame", idx)
                 continue
 
             # pose estimation
-            K = 10
+            K = args.topk
             best_idx = np.argsort(pred_kps_score[0, :, 0]).flip(0)
             best_k = best_idx[:K]
 

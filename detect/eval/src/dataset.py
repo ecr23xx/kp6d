@@ -4,6 +4,7 @@ import torch
 import numpy as np
 from PIL import Image
 from torchvision import transforms
+from torch.utils.data.distributed import DistributedSampler
 
 from detect.eval.src.config import class_name
 from data.linemod.sixd import SixdToolkit
@@ -91,7 +92,7 @@ class YcbDataset(torch.utils.data.dataset.Dataset):
         return len(self.imgs_path)
 
 
-def prepare_dataset(name, reso, bs, seq=None):
+def prepare_dataset(name, reso, bs, seq=None, distributed=False):
     """
     Args
     - name: (str) Dataset name
@@ -121,6 +122,13 @@ def prepare_dataset(name, reso, bs, seq=None):
             listfile=os.path.join(LINEMOD, seq, 'val.txt'),
             transform=val_transform
         )
+    elif name == 'linemod-occ':
+        val_datasets = LinemodDataset(
+            root=LINEMOD,
+            seq='02',
+            listfile=os.path.join(LINEMOD, '02', 'val.txt'),
+            transform=val_transform
+        )
     elif name == 'ycb':
         val_datasets = YcbDataset(
             root=YCB,
@@ -131,12 +139,24 @@ def prepare_dataset(name, reso, bs, seq=None):
     else:
         raise NotImplementedError
 
-    val_dataloder = torch.utils.data.DataLoader(
-        dataset=val_datasets,
-        batch_size=bs,
-        shuffle=True,
-        num_workers=4,
-        pin_memory=True
-    )
+    if distributed:
+        sampler = DistributedSampler(val_datasets)
+
+        val_dataloder = torch.utils.data.DataLoader(
+            dataset=val_datasets,
+            batch_size=bs,
+            shuffle=False,
+            num_workers=4,
+            pin_memory=True,
+            sampler=sampler
+        )
+    else:
+        val_dataloder = torch.utils.data.DataLoader(
+            dataset=val_datasets,
+            batch_size=bs,
+            shuffle=False,
+            num_workers=4,
+            pin_memory=True
+        )
 
     return None, val_dataloder

@@ -26,10 +26,10 @@ except AttributeError:
 
 
 class InferenNet_fast(nn.Module):
-    def __init__(self, kernel_size, name, kpnum):
+    def __init__(self, dataset, kernel_size, seqname, kpnum, kptype):
         super(InferenNet_fast, self).__init__()
         model = FastPose_SE(kpnum).cuda()
-        path = '/home/penggao/projects/pose/kp6d/keypoint/exp/final_model/%s.pkl' % name
+        path = '/home/penggao/projects/pose/kp6d/keypoint/exp/final_model-%s-%d-%s/%s.pkl' % (dataset, kpnum, kptype, seqname)
         print('Loading pose model from {}'.format(path))
         model.load_state_dict(torch.load(path))
         model.eval()

@@ -43,43 +43,38 @@ Run [scripts/eval.sh](scripts/eval.sh) to estimate the pose and evaluate the res
 
 ## Results
 
-### 17 SIFT keypoints
+ADD (-S) accuracy listed below. Eggbox and glue is calculated with ADD(-S).
 
-| Sequence       | Mean ADD Acc  | Mean 2d Projection Acc | Backbone   |
-| -------------- | ------------- | ---------------------- | ---------- |
-| 01 Ape         | 0.456         | 0.990                  | ResNet-50  |
-| 02 Benchvise   | 0.971 (99.9)  | 0.984                  | ResNet-50  |
-| 04 Camera      | 0.775 (86.86) | 0.986                  | ResNet-101 |
-| 05 Can         | 0.863 (95.47) | 0.981                  |            |
-| 06 Cat         | 0.780 (79.34) | 0.990                  | ResNet-50  |
-| 08 Driller     | 0.867 (96.43) | 0.952                  | ResNet-101 |
-| 09 Duck        | 0.532         | 0.988                  | ResNet-50  |
-| 10 Eggbox      | 0.907 (99.15) | 0.985                  | ResNet-50  |
-| 11 Glue        | 0.851 (95.66) | 0.985                  |            |
-| 12 Holepuncher | 0.654 (81.92) | 0.992                  |            |
-| 13 Iron        | 0.955 (98.88) | 0.983                  |            |
-| 14 Lamp        | 0.949 (99.33) | 0.973                  |            |
-| 15 Phone       | 0.738 (92.41) | 0.981                  | ResNet-50  |
-| Average        | (0.89)        |                        |            |
+| Sequence       | 17 SIFT | 17 Cluster | 17 Cluster w/o dpg | 9 Corner | 9 SIFT |
+| -------------- | ------- | ---------- | ------------------ | -------- | ------ |
+| 01 Ape         | 0.487   | 0.649      | 0.203              | 0.119    | 0.446  |
+| 02 Benchvise   | 0.982   | 0.986      | 0.601              | 0.179    | 0.858  |
+| 04 Camera      | 0.687   | 0.888      | 0.739              | 0.538    | 0.778  |
+| 05 Can         | 0.821   | 0.921      | 0.873              | 0.231    | 0.813  |
+| 06 Cat         | 0.645   | 0.863      | 0.661              | 0.318    | 0.632  |
+| 08 Driller     | 0.803   | 0.961      | 0.936              | 0.217    | 0.596  |
+| 09 Duck        | 0.508   | 0.587      | 0.523              | 0.100    | 0.329  |
+| 10 Eggbox      |         | 0.977      | 0.924              | 0.971    | 0.305  |
+| 11 Glue        |         | 0.954      | 0.519              | 0.667    | 0.810  |
+| 12 Holepuncher | 0.648   | 0.765      | 0.756              | 0.690    | 0.461  |
+| 13 Iron        | 0.918   | 0.969      | 0.859              | 0.460    | 0.838  |
+| 14 Lamp        |         | 0.973      | 0.904              | 0.675    | 0.961  |
+| 15 Phone       | 0.730   | 0.865      | 0.823              | 0.510    | 0.786  |
+| Average        |         | 0.874      | 0.717              | 0.437    | 0.663  |
 
-### 17 Cluster keypoints
+### Occlusion LINEMOD
 
-| Sequence       | Mean ADD Acc | Mean 2d Projection Acc | Backbone  |
-| -------------- | ------------ | ---------------------- | --------- |
-| 01 Ape         | 0.649        | 0.991                  | ResNet-50 |
-| 02 Benchvise   | 0.985 (99.9) | 0.997                  | ResNet-50 |
-| 04 Camera      | 0.886        | 0.986                  | ResNet-50 |
-| 05 Can         | 0.922 (95.5) | 0.981                  | ResNet-50 |
-| 06 Cat         | 0.866        | 0.990                  | ResNet-50 |
-| 08 Driller     | 0.963 (96.4) | 0.979                  | ResNet-50 |
-| 09 Duck        | 0.588        | 0.988                  | ResNet-50 |
-| 10 Eggbox      | (99.2)       | 0.994                  |           |
-| 11 Glue        | (95.7)       | 0.985                  |           |
-| 12 Holepuncher | 0.763 (81.9) | 0.996                  | ResNet-50 |
-| 13 Iron        | 0.967 (98.9) | 0.994                  | ResNet-50 |
-| 14 Lamp        | 0.981 (99.3) | 0.985                  | ResNet-50 |
-| 15 Phone       | 0.865 (92.4) | 0.990                  | ResNet-50 |
-| Average        | 0.726 (0.89) |                        |           |
+| Sequence       | Mean ADD Acc |
+| -------------- | ------------ |
+| 01 Ape         | 0.152        |
+| 05 Can         | 0.583        |
+| 06 Cat         | 0.227        |
+| 08 Driller     | 0.692        |
+| 09 Duck        | 0.151        |
+| 10 Eggbox      | 0.825        |
+| 11 Glue        | 0.620        |
+| 12 Holepuncher | 0.468        |
+| Average        | 0.464        |
 
 
 ## Todos
