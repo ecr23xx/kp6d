@@ -74,13 +74,24 @@ ADD (-S) accuracy listed below. Eggbox and glue is calculated with ADD(-S).
 | 12 Holepuncher | 0.468        |
 | Average        | 0.464        |
 
-
 ## Todos
 
 - [x] ~~Keypoint designation~~
-- [ ] Data synthesis
+- [x] ~~Data synthesis~~
 - [x] ~~Labels generation~~
 - [x] ~~Object detection~~
 - [x] ~~Keypoint localization~~
 - [x] ~~Pose estimation~~
 
+## Citation
+
+Please cite our paper
+
+```
+@article{zhao2018estimating,
+  title={Estimating 6D Pose From Localizing Designated Surface Keypoints},
+  author={Zhao, Zelin and Peng, Gao and Wang, Haoyu and Fang, Hao-Shu and Li, Chengkun and Lu, Cewu},
+  journal={arXiv preprint arXiv:1812.01387},
+  year={2018}
+}
+```
