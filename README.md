@@ -1,7 +1,5 @@
 # kp6d
 
-My undergraduate final year project.
-
 ## Table of Contents
 
 - [Pipeline](#pipeline)
